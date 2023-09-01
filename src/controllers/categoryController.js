@@ -1,8 +1,8 @@
 const db = require("../database/db");
-
-const getAllCategory = (req, res) => {
+const {isEmptyOrNull} = require("../helper/helper")
+const getAllCategory = async(req, res) => {
   sql = 'SELECT * FROM tbl_category'
-  db.query(sql,(error,row) => {
+  await db.query(sql,(error,row) => {
     if(!error){
       res.json({
         msg: "category list",
@@ -17,10 +17,10 @@ const getAllCategory = (req, res) => {
   })
 };
 
-const getOne = (req, res) => {
+const getOne = async (req, res) => {
   let id = req.params.id
   let sql = 'SELECT * FROM category WHERE category_id = ?'
-  bd.query(sql,[id],(error,row)=> {
+  await bd.query(sql,[id],(error,row)=> {
     if(!error){
       res.json({
         msg: 'cagtegory select by id',
@@ -35,16 +35,27 @@ const getOne = (req, res) => {
   })
 };
 
-const createCategory = (req, res) => {
+const createCategory = async (req, res) => {
   const {
     category_name,
     description,
     parent_id,
     status,
-  } = req.body
+  } = req.body;
+  var msg = {}
+  if(isEmptyOrNull(category_name)){
+    msg.category_name = "Category Name is required!"
+  }
+  if(Object.keys(msg).length > 0){
+    res.json({
+      error: true,
+      msg: msg
+    })
+    return false;
+  }
   let sql = 'INSERT INTO tbl_category (`category_name` , `description`, `parent_id`, `status`) VALUES(?,?,?,?)'
   let data = [category_name,description,parent_id,status]
-  db.query(sql,data,(error,row)=> {
+  await db.query(sql,data,(error,row)=> {
     if(!error){
       res.json({
         msg: 'category insert successful',
@@ -59,7 +70,7 @@ const createCategory = (req, res) => {
   })
 };
 
-const updateCategory = (req, res) => {
+const updateCategory = async (req, res) => {
   const {
     category_id,
     category_name,
@@ -67,9 +78,20 @@ const updateCategory = (req, res) => {
     parent_id,
     status
   } = req.body
+  var msg = {}
+  if(isEmptyOrNull(category_name)){
+    msg.category_name = "Category Name is required!"
+  }
+  if(Object.keys(msg).length > 0){
+    res.json({
+      error: true,
+      msg: msg
+    })
+    return false
+  }
   let sql = 'UPDATE tbl_category SET category_name = ?, description = ?, parent_id =?, status =? WHERE category_id =?'
   let param_sql = [category_name,description,parent_id,status,category_id]
-  db.query(sql,param_sql,(error,row)=>{
+  await db.query(sql,param_sql,(error,row)=>{
     if(!error){
       res.json({
         msg: row.affectedRows != 0 ? 'Category update success!' : 'category update faild!',
@@ -84,11 +106,11 @@ const updateCategory = (req, res) => {
   })
 };
 
-const removeCategory = (req, res) => {
+const removeCategory = async (req, res) => {
   let id = req.params.id
   let sql = 'DELETE FROM tbl_category WHERE cateogry_id =?'
   let param_id = [id]
-  db.query(sql,param_id,(error,row)=> {
+  await db.query(sql,param_id,(error,row)=> {
     if(!error){
       res.json({
         msg: (row.affectedRows != 0) ? 'category remove success' : 'category remove faild',

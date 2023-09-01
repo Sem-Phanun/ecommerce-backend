@@ -1,12 +1,12 @@
 const db = require("../database/db");
-const isEmptyOrNull = require("../helper/helper");
+const {isEmptyOrNull} = require("../helper/helper");
 const cart = require("../routes/cartRoute");
 const getByCustomer = async (req, res) => {
   const { customer_id } = req.body;
   // var sql = 'SELECT * FROM tbl_cart WHERE customer_id =?'
-  var sql = "SELECT cart.cart_id, cart.quantity, pro.* FROM tbl_cart cart";
-  sql += "INNER JOIN tbl_product pro ON (cart.product_id = pro.product_id)";
-  sql += "WHERE cart.customer_id =?";
+  var sql = "SELECT cart.cart_id, cart.quantity, pro.* FROM tbl_cart cart ";
+  sql += "INNER JOIN tbl_product pro ON (cart.product_id = pro.product_id) ";
+  sql += "WHERE cart.customer_id = ?";
   const list = await db.query(sql, [customer_id]);
   res.json({
     data: list,
@@ -16,7 +16,7 @@ const getByCustomer = async (req, res) => {
 const addCart = async (req, res) => {
   const { customer_id, product_id, quantity } = req.body;
   var msg = {};
-  if (isEmptyOrNull()) {
+  if (isEmptyOrNull(customer_id)) {
     msg.customer_id = "customer id is required!";
   }
   if (isEmptyOrNull(product_id)) {
@@ -31,10 +31,11 @@ const addCart = async (req, res) => {
       msg: msg,
     });
   }
-  const sql =
+  var sql =
     "INSERT INTO tbl_cart (customer_id, product_id, quantity) VALUES(?,?,?)";
   const list = await db.query(sql, [customer_id, product_id, quantity]);
   res.json({
+    msg: "cart has been add",
     data: list,
   });
 };
@@ -63,7 +64,7 @@ const updateCart = async (req, res) => {
 const removeCart = async (req, res) => {
   const { cart_id } = req.body;
   const sql = "DELETE FROM tbl_cat WHERE cart_id =? ";
-  const data = await db.query(sql, [req.body.cart_id]);
+  const data = await db.query(sql, [cart_id]);
   res.json({
     data: data,
   });

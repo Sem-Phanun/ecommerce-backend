@@ -1,5 +1,5 @@
 const productController = require('../controllers/productController')
-
+// const userGuard = require("../controllers/authController")
 const base_route = '/api/product' 
 const product = (app) => {
     app.get(`${base_route}`,productController.getAllProduct)

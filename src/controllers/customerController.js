@@ -1,6 +1,10 @@
 const db = require("../database/db");
 const bcrypt = require("bcrypt");
-const isEmptyOrNull = require("../helper/helper");
+const jwt = require("jsonwebtoken")
+const dotenv = require("dotenv")
+const {isEmptyOrNull} = require("../helper/helper");
+
+dotenv.config()
 
 const getCustomerList = async (req, res) => {
   const data = await db.query('SELECT customer_id, first_name, last_name, gender,status FROM tbl_customer')
@@ -150,6 +154,57 @@ const createCustomerAddress = (req, res) => {
     }
   });
 };
+
+//handle login 
+const login = async (req,res) => {
+  const {username,password} = req.body
+  var msg = {}
+  if(isEmptyOrNull(username)){
+    msg.username = "Plesase fill your username"
+  }
+  if(isEmptyOrNull(password)){
+    msg.password = "Please fill your password"
+  }
+  if(Object.keys(msg).length > 0 ) {
+    res.json({
+      error: true,
+      msg: msg
+    })
+    return false
+  }
+
+  var user = await db.query("SELECT * FROM tbl_customer WHERE username =? ", [username])
+  if(user.length > 0) {
+    var passwordDb = user[0].password //get password from db
+    var isCorrect = bcrypt.compareSync(password,passwordDb) //coparing password
+    if(isCorrect) {
+      var user = user[0]
+      delete user.password //delete colums password from object user.
+      var obj = {
+        user: user,
+        permission:[],
+        token: "" //generate token jwt
+      }
+      var access_token = jwt.sign({data:{...obj}}, process.env.SECRET_KEY, {expiresIN: "60s"})
+      var refresh_token = jwt.sign({data:{...obj}}, process.env.SECRET_KEY)
+      res.json({
+        ...obj,
+        access_token: access_token,
+        resfresh_token: refresh_token
+      })
+    }else {
+      res.json({
+        msg: "Password Incorrect",
+        error: true
+      })
+    }
+  }else{
+    res.json({
+      message:"Account does't exist!. Please goto register!",
+      error:true
+    })
+  }
+}
 
 //handle update information of customer
 const updateCustomer = (req, res) => {
@@ -407,6 +462,8 @@ const removeAddress = (req, res) => {
   })
 };
 
+
+
 module.exports = {
   getCustomerList,
   getOneCustomer,
@@ -418,4 +475,5 @@ module.exports = {
   addNewAddress,
   updateAddress,
   removeAddress,
+  login
 };
