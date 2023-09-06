@@ -1,59 +1,41 @@
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
-const db = require("../database/db")
+const db = require("../config/db")
 dotenv.config()
 
-exports.userGuard = (parameter) => {
-    return (req,res,next) => {
-        var authorization = req.headers.authorization;
-        var token_from_client = null
-        if(authorization != null && authorization != ""){
-            token_from_client = authorization.split(" ");
-            token_from_client = token_from_client[1];
-        }
-        if(token_from_client == null){
-            res.status(401).send({
-                message: "Unauthorized"
-            })
-        }else {
-            jwt.verify(token_from_client, process.env.SECRET_KEY,(error, result))
+exports.requireAuth = (req, res, next) => {
+    const authorization = req.header(process.env.TOKEN_KEY)
+    var token = null
+    if(authorization != null && authorization != ""){
+        token = authorization.split(" ")
+        token = token[1]
+    }
+    if(token == null){
+        res.status(401).send({message: "Unauthorized!"})
+    }else{
+        jwt.verify(token, process.env.SECRET_KEY, (error, data)=> {
             if(error){
-                res.status(401).send({
-                    message: "Unauthorized"
-                })
+                res.status(401).send({message: "Unauthorized!"})
             }else{
-                var permission = result.data.user.permission
-                req.user = result.user
-                req.user_id = result.data.user.customer_id
-                if(parameter == null){
-                    next()
-                }else if(permission.includes(parameter)){
-                    next()
-                }else {
-                    res.status(401).send({
-                        message: "Unauthorized"
-                    })
-                }
+                res.user = data;
+                next();
             }
-        }
+        })
     }
 }
 
-exports.getPermissionUser = async (id) => {
-    var sql = "SELECT * " +
-    " p.code"+
-    " FROM tbl_staff staff"+
-    " INNER JOIN tbl_role r ON staff.role_id = r.role_id"+
-    " INNER JOIN tbl_role_permission rp ON r.role_id = rp.role_id"+
-    " INNER JOIN tbl_permission p ON rp.permission_id = p.permission_id"+
+exports.getPermission = async (id) => {
+    var sql = "SELECT " +
+    " p.code" +
+    " FROM tbl_staff staff" +
+    " INNER JOIN tbl_role r ON staff.role_id = r.role_id" +
+    " INNER JOIN tbl_role_permission rp ON r.role_id = rp.role_id" +
+    " INNER JOIN tbl_permission p ON rp.permission_id = p.permission_id" +
     " WHERE staff.staff_id = ?"
     var list = await db.query(sql,[id])
     var tmpArr = []
-    list.map(item => {
-        tmpArr.push(item.code)
-    })
-    // list.forEach(item => {
-    //     tmpArr.push(item.code)
-    // });
+    list.forEach((item) => {
+        tmpArr.push(item.code);
+    });
     return tmpArr;
 }

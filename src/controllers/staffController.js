@@ -1,9 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const db = require("../database/db");
-const { getPermissionUser } = require("../helper/auth");
-const { isEmptyOrNull } = require("../helper/helper");
+const db = require("../config/db");
+const { getPermission } = require("../helper/auth");
+const { validation } = require("../helper/helper");
 dotenv.config();
 
 const getAllStaffList = async (req, res) => {
@@ -22,16 +22,17 @@ const getSingleStaff = async (req, res) => {
     list: list,
   });
 };
-const createStaffInfo = async (req, res) => {
+const staffRegisterInfo = async (req, res) => {
+  // db.beginTransaction();
   const { role_id, first_name, last_name,username, password, tel, email, address, province } = req.body;
   var msg = {};
-  if (isEmptyOrNull(first_name)) {
+  if (validation(first_name)) {
     msg.first_name = "First Name is required!";
   }
-  if (isEmptyOrNull(last_name)) {
+  if (validation(last_name)) {
     msg.last_name = "Last Name is required!";
   }
-  if (isEmptyOrNull(username)) {
+  if (validation(username)) {
     msg.tel = "Username is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -42,40 +43,41 @@ const createStaffInfo = async (req, res) => {
     return false;
   }
   const sql =
-    "INSERT INTO tbl_staff (role_id, first_name, last_name, username, password, tel, email, address, province)" +
-    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO tbl_staff (role_id, first_name, last_name, username, password, tel, email, address, province)" +
+      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const paramSql = [role_id, first_name, last_name, username, password, tel, email, address, province];
   const list = await db.query(sql, paramSql);
   res.json({
+    message: "Create success",
     list: list,
   });
 };
 
 const login = async (req, res) => {
-  var { username, password } = req.body;
+  var { email, password } = req.body;
   var msg = {};
-  if (isEmptyOrNull(username)) {
-    msg.username = "Please fill username";
+  if (validation(email)) {
+    msg.email = "Please fill email";
   }
-  if (isEmptyOrNull(password)) {
+  if (validation(password)) {
     msg.password = "Please fill password";
   }
   if (Object.keys(msg).length > 0) {
     res.json({
-      msg: msg,
       error: true,
+      msg: msg,
     });
-    return false;
+    return false
   }
-  const sql = "SELECT * FROM tbl_staff WHERE username = ?";
-  var user = await db.query(sql, [username]);
+  const sql = "SELECT * FROM tbl_staff WHERE email = ?";
+  var user = await db.query(sql, [email]);
   if (user.length > 0) {
     var passwordCompare = user[0].password; // get password from DB
     var isCorrect = bcrypt.compareSync(password, passwordCompare);
     if (isCorrect) {
       var user = user[0];
       delete user.password;
-      var permission = await getPermissionUser(user.staff_id);
+      var permission = await getPermission(user.staff_id);
       var obj = {
         user: user,
         permission: permission,
@@ -109,12 +111,12 @@ const login = async (req, res) => {
 };
 
 const setPassword = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   var msg = {};
-  if (isEmptyOrNull(username)) {
-    msg.username = "Please fill username";
+  if (validation(email)) {
+    msg.username = "Please fill email";
   }
-  if (isEmptyOrNull(password)) {
+  if (validation(password)) {
     msg.password = "Please fill password";
   }
   if (Object.keys(msg).length > 0) {
@@ -122,15 +124,15 @@ const setPassword = async (req, res) => {
       error: true,
       msg: msg,
     });
-    return false;
+    return 
   }
-  const staff = "SELECT * FROM tbl_staff WHERE username = ?";
-  const list = await db.query(staff, [username]);
+  const staff = "SELECT * FROM tbl_staff WHERE email = ?";
+  const list = await db.query(staff, [email]);
   if (list.length > 0) {
     var passwordGenerate = bcrypt.hashSync(password, 10);
     var update = await db.query(
-      "UPDATE tbl_staff SET password = ? WHERE username = ?",
-      [passwordGenerate, username]
+      "UPDATE tbl_staff SET password = ? WHERE email = ?",
+      [passwordGenerate, email]
     );
     res.json({
       msg: "Password upated",
@@ -147,16 +149,16 @@ const updateStaffInfo = async (req, res) => {
   const { staff_id, first_name, last_name, username, password, tel, email, address, province } =
     req.body;
   var msg = {};
-  if (isEmptyOrNull(staff_id)) {
+  if (validation(staff_id)) {
     msg.staff_id = "Staff id is required!";
   }
-  if (isEmptyOrNull(first_name)) {
+  if (validation(first_name)) {
     msg.first_name = "First Name is required!";
   }
-  if (isEmptyOrNull(last_name)) {
+  if (validation(last_name)) {
     msg.last_name = "Last Name is required!";
   }
-  if (isEmptyOrNull(username)) {
+  if (validation(username)) {
     msg.tel = "Username is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -196,7 +198,7 @@ const deleteStaffInfo = async (req, res) => {
 module.exports = {
   getAllStaffList,
   getSingleStaff,
-  createStaffInfo,
+  staffRegisterInfo,
   updateStaffInfo,
   deleteStaffInfo,
   login,

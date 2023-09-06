@@ -1,4 +1,4 @@
-const db = require('../database/db')
+const db = require('../config/db')
 
 const getAllPaymentMethod = async(req,res) => {
     const sql = 'SELECT * FROM tbl_payment_method'

@@ -1,5 +1,5 @@
-const db = require("../database/db");
-const {isEmptyOrNull, invoiceNumber} = require("../helper/helper");
+const db = require("../config/db");
+const {validation, invoiceNumber} = require("../helper/helper");
 
 const generateInvoiceNo = async () => {
     const data = await db.query("SELECT MAX( order_id ) as id FROM `tbl_order`")
@@ -32,13 +32,13 @@ const createOrder = async (req, res) => {
       customer_id, address_id, payment_id, comment
     } = req.body;
     var msg = {}
-    if(isEmptyOrNull(customer_id)){
+    if(validation(customer_id)){
       msg.customer_id = "Customer Id is required!"
     }
-    if(isEmptyOrNull(payment_id)){
+    if(validation(payment_id)){
       msg.payment_id = "Payment Id is required!"
     }
-    if(isEmptyOrNull(address_id)){
+    if(validation(address_id)){
       msg.address_id = "Address Id is required!"
     }
     if(Object.keys(msg).length > 0){

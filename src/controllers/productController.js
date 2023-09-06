@@ -1,5 +1,5 @@
-const db = require("../database/db");
-const {isEmptyOrNull} = require("../helper/helper");
+const db = require("../config/db");
+const {validation} = require("../helper/helper");
 const getAllProduct = async (req, res) => {
   const sql = "SELECT * FROM tbl_product";
 
@@ -21,19 +21,19 @@ const createProduct = async (req, res) => {
   var { category_id, barcode, product_name, quantity, price, image, description } =
     req.body;
   var msg = {};
-  if (isEmptyOrNull(category_id)) {
+  if (validation(category_id)) {
     msg.category_id = "category ID is required!";
   }
-  if (isEmptyOrNull(barcode)) {
+  if (validation(barcode)) {
     msg.barcode = "Barcode is required!";
   }
-  if (isEmptyOrNull(product_name)) {
+  if (validation(product_name)) {
     msg.product_name = "Product name is required!";
   }
-  if (isEmptyOrNull(quantity)) {
+  if (validation(quantity)) {
     msg.quantity = "Quantity is required!";
   }
-  if (isEmptyOrNull(price)) {
+  if (validation(price)) {
     msg.price = "Price is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -64,19 +64,19 @@ const updateProduct = async (req, res) => {
   var { category_id, barcode, name, quantity, price, image, description } =
     req.body;
   var msg = {};
-  if (isEmptyOrNull(category_id)) {
+  if (validation(category_id)) {
     msg.category_id = "category ID is required!";
   }
-  if (isEmptyOrNull(barcode)) {
+  if (validation(barcode)) {
     msg.barcode = "Barcode is required!";
   }
-  if (isEmptyOrNull(name)) {
+  if (validation(name)) {
     msg.name = "Product name is required!";
   }
-  if (isEmptyOrNull(quantity)) {
+  if (validation(quantity)) {
     msg.quantity = "Quantity is required!";
   }
-  if (isEmptyOrNull(price)) {
+  if (validation(price)) {
     msg.price = "Price is required!";
   }
   if (Object.keys(msg).length > 0) {

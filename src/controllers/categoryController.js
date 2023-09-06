@@ -1,5 +1,5 @@
-const db = require("../database/db");
-const {isEmptyOrNull} = require("../helper/helper")
+const db = require("../config/db");
+const {validation} = require("../helper/helper")
 const getAllCategory = async(req, res) => {
   sql = 'SELECT * FROM tbl_category'
   await db.query(sql,(error,row) => {
@@ -43,7 +43,7 @@ const createCategory = async (req, res) => {
     status,
   } = req.body;
   var msg = {}
-  if(isEmptyOrNull(category_name)){
+  if(validation(category_name)){
     msg.category_name = "Category Name is required!"
   }
   if(Object.keys(msg).length > 0){
@@ -79,7 +79,7 @@ const updateCategory = async (req, res) => {
     status
   } = req.body
   var msg = {}
-  if(isEmptyOrNull(category_name)){
+  if(validation(category_name)){
     msg.category_name = "Category Name is required!"
   }
   if(Object.keys(msg).length > 0){

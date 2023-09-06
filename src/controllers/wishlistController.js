@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../config/db");
 
 const getAllwishlist = async (req, res) => {
   const { customer_id } = req.body;

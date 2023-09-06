@@ -1,6 +1,7 @@
-const db = require("../database/db");
-const {isEmptyOrNull} = require("../helper/helper");
+const db = require("../config/db");
+const {validation} = require("../helper/helper");
 const cart = require("../routes/cartRoute");
+
 const getByCustomer = async (req, res) => {
   const { customer_id } = req.body;
   // var sql = 'SELECT * FROM tbl_cart WHERE customer_id =?'
@@ -16,13 +17,13 @@ const getByCustomer = async (req, res) => {
 const addCart = async (req, res) => {
   const { customer_id, product_id, quantity } = req.body;
   var msg = {};
-  if (isEmptyOrNull(customer_id)) {
+  if (validation(customer_id)) {
     msg.customer_id = "customer id is required!";
   }
-  if (isEmptyOrNull(product_id)) {
+  if (validation(product_id)) {
     msg.product_id = "prodcut id is required!";
   }
-  if (isEmptyOrNull(quantity)) {
+  if (validation(quantity)) {
     msg.quantity = "quantity is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -42,10 +43,10 @@ const addCart = async (req, res) => {
 const updateCart = async (req, res) => {
   const { cart_id, quantity } = req.body;
   var msg = {};
-  if (isEmptyOrNull(cart_id)) {
+  if (validation(cart_id)) {
     msg.cart_id = "cart id is required!";
   }
-  if (isEmptyOrNull(quantity)) {
+  if (validation(quantity)) {
     msg.quantity = "quantity is required!";
   }
   if (Object.keys(msg).length > 0) {

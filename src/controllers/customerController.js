@@ -1,8 +1,8 @@
-const db = require("../database/db");
+const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
-const {isEmptyOrNull} = require("../helper/helper");
+const {validation} = require("../helper/helper");
 
 dotenv.config()
 
@@ -47,6 +47,12 @@ const getOneCustomer = (req, res) => {
   });
 };
 
+
+//register 
+const register = async (req,res) => {
+  // db.beginTransaction();
+  // const {username, password, first_name, last_name, gender, province_id  } = req.body;
+}
 //create customer address and customer
 const createCustomerAddress = (req, res) => {
   db.beginTransaction()
@@ -63,22 +69,22 @@ const createCustomerAddress = (req, res) => {
 
   //validation users checking
   var msg = {};
-  if (isEmptyOrNull(username)) {
+  if (validation(username)) {
     msg.username = "username is required!";
   }
-  if (isEmptyOrNull(password)) {
+  if (validation(password)) {
     msg.password = "password is required!";
   }
-  if (isEmptyOrNull(first_name)) {
+  if (validation(first_name)) {
     msg.first_name = "fistname is required!";
   }
-  if (isEmptyOrNull(last_name)) {
+  if (validation(last_name)) {
     msg.last_name = "lastname is required!";
   }
-  if (isEmptyOrNull(gender)) {
+  if (validation(gender)) {
     msg.gender = "gender is required!";
   }
-  if (isEmptyOrNull(province_id)) {
+  if (validation(province_id)) {
     msg.province_id = "province is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -159,10 +165,10 @@ const createCustomerAddress = (req, res) => {
 const login = async (req,res) => {
   const {username,password} = req.body
   var msg = {}
-  if(isEmptyOrNull(username)){
+  if(validation(username)){
     msg.username = "Plesase fill your username"
   }
-  if(isEmptyOrNull(password)){
+  if(validation(password)){
     msg.password = "Please fill your password"
   }
   if(Object.keys(msg).length > 0 ) {
@@ -211,16 +217,16 @@ const updateCustomer = (req, res) => {
   var { customer_id, username, first_name, last_name, gender } = req.body;
 
   var msg = {};
-  if (isEmptyOrNull(customer_id)) {
+  if (validation(customer_id)) {
     msg.customer_id = "customer ID is required!";
   }
-  if (isEmptyOrNull(first_name)) {
+  if (validation(first_name)) {
     msg.first_name = "First Name is required!";
   }
-  if (isEmptyOrNull(last_name)) {
+  if (validation(last_name)) {
     msg.last_name = "Last Name is required!";
   }
-  if (isEmptyOrNull(gender)) {
+  if (validation(gender)) {
     msg.last_name = "Gender is required!";
   }
   if (Object.keys(msg).length > 0) {
@@ -394,25 +400,25 @@ const updateAddress = (req, res) => {
   } = req.body
 
   var msg = {}
-  if(isEmptyOrNull(address_id)){
+  if(validation(address_id)){
     msg.address_id = 'Address ID is required!'
   }
-  if(isEmptyOrNull(customer_id)){
+  if(validation(customer_id)){
     msg.customer_id = 'Customer ID is required!'
   }
-  if(isEmptyOrNull(first_name)){
+  if(validation(first_name)){
     msg.first_name = 'First Name is required!'
   }
-  if(isEmptyOrNull(last_name)){
+  if(validation(last_name)){
     msg.last_name = 'Last Name is required!'
   }
-  if(isEmptyOrNull(tel)){
+  if(validation(tel)){
     msg.tel = 'Telephone is required!'
   }
-  if(isEmptyOrNull(province_id)){
+  if(validation(province_id)){
     msg.province_id = 'Province id is required!'
   }
-  if(isEmptyOrNull(address_desc)){
+  if(validation(address_desc)){
     msg.address_desc = 'Address description is required!'
   }
 
