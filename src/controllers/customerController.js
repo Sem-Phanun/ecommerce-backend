@@ -191,7 +191,7 @@ const login = async (req,res) => {
         permission:[],
         token: "" //generate token jwt
       }
-      var access_token = jwt.sign({data:{...obj}}, process.env.SECRET_KEY, {expiresIN: "60s"})
+      var access_token = jwt.sign({data:{...obj}}, process.env.SECRET_KEY, {expiresIN: "7d"})
       var refresh_token = jwt.sign({data:{...obj}}, process.env.SECRET_KEY)
       res.json({
         ...obj,

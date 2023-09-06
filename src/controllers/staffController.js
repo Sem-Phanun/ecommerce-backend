@@ -85,7 +85,7 @@ const login = async (req, res) => {
       var access_token = jwt.sign(
         { data: { ...obj } },
         process.env.SECRET_KEY,
-        { expiresIn: "1h" }
+        { expiresIn: "7d" }
       );
       var refresh_token = jwt.sign(
         { data: { ...obj } },
