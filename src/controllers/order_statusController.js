@@ -9,9 +9,9 @@ const getAll = async(req,res) => {
 }
 
 const create = async(req,res) => {
-    var { name, message, sort_order} = req.body
+    var { name, message, sortOrder} = req.body
     const sql = 'INSERT INTO tbl_order_status (name,message,sort_order) VALUES(?,?,?)'
-    const param = [name,message,sort_order]
+    const param = [name,message,sortOrder]
     const list = await db.query(sql,param)
     res.json({
         list: list
@@ -19,9 +19,9 @@ const create = async(req,res) => {
 }
 
 const remove = async (req,res) => {
-    var { order_status_id } = req.body
+    var { orderStatusId } = req.body
     const sql = 'DELETE FROM tbl_order_status WHERE order_status_id =?'
-    const data = await db.query(sql,[order_status_id])
+    const data = await db.query(sql,[orderStatusId])
     res.json({
         data: data
     })

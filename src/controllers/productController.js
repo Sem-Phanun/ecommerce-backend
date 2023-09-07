@@ -1,5 +1,6 @@
 const db = require("../config/db");
-const {validation} = require("../helper/helper");
+const {validation} = require("../helper/services");
+
 const getAllProduct = async (req, res) => {
   const sql = "SELECT * FROM tbl_product";
 
@@ -18,17 +19,17 @@ const getSingleProduct = async (req, res) => {
   });
 };
 const createProduct = async (req, res) => {
-  var { category_id, barcode, product_name, quantity, price, image, description } =
+  var { categoryId, barcode, productName, quantity, price, image, description } =
     req.body;
   var msg = {};
-  if (validation(category_id)) {
-    msg.category_id = "category ID is required!";
+  if (validation(categoryId)) {
+    msg.categoryId = "category ID is required!";
   }
   if (validation(barcode)) {
     msg.barcode = "Barcode is required!";
   }
-  if (validation(product_name)) {
-    msg.product_name = "Product name is required!";
+  if (validation(productName)) {
+    msg.productName = "Product name is required!";
   }
   if (validation(quantity)) {
     msg.quantity = "Quantity is required!";
@@ -47,9 +48,9 @@ const createProduct = async (req, res) => {
   const sql =
     "INSERT INTO tbl_product (category_id, barcode, product_name, quantity, price, image, description) VALUES(?, ?, ?, ?, ?, ?, ?)";
   const param = [
-    category_id,
+    categoryId,
     barcode,
-    product_name,
+    productName,
     quantity,
     price,
     image,
@@ -61,11 +62,11 @@ const createProduct = async (req, res) => {
   });
 };
 const updateProduct = async (req, res) => {
-  var { category_id, barcode, name, quantity, price, image, description } =
+  var { categoryId, barcode, name, quantity, price, image, description } =
     req.body;
   var msg = {};
-  if (validation(category_id)) {
-    msg.category_id = "category ID is required!";
+  if (validation(categoryId)) {
+    msg.categoryId = "category ID is required!";
   }
   if (validation(barcode)) {
     msg.barcode = "Barcode is required!";

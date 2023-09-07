@@ -2,8 +2,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const db = require("../config/db");
-const { getPermission } = require("../helper/auth");
-const { validation } = require("../helper/helper");
+const { getPermission } = require("../helper/permission");
+const { validation } = require("../helper/services");
 dotenv.config();
 
 const getAllStaffList = async (req, res) => {
@@ -146,17 +146,17 @@ const setPassword = async (req, res) => {
   }
 };
 const updateStaffInfo = async (req, res) => {
-  const { staff_id, first_name, last_name, username, password, tel, email, address, province } =
+  const { staffId, firstName, lastName, username, password, tel, email, address, province } =
     req.body;
   var msg = {};
-  if (validation(staff_id)) {
-    msg.staff_id = "Staff id is required!";
+  if (validation(staffId)) {
+    msg.staffId = "Staff id is required!";
   }
-  if (validation(first_name)) {
-    msg.first_name = "First Name is required!";
+  if (validation(firstName)) {
+    msg.firstName = "First Name is required!";
   }
-  if (validation(last_name)) {
-    msg.last_name = "Last Name is required!";
+  if (validation(lastName)) {
+    msg.lastName = "Last Name is required!";
   }
   if (validation(username)) {
     msg.tel = "Username is required!";
@@ -172,15 +172,15 @@ const updateStaffInfo = async (req, res) => {
     "UPDATE tbl_staff " +
     " SET first_name =? , last_name = ?,username =?, password = ?, tel = ?, email= ?, address = ? , province = ? WHERE staff_id =?";
   const staffParam = [
-    first_name,
-    last_name,
+    firstName,
+    lastName,
     username,
     password,
     tel,
     email,
     address,
     province,
-    staff_id,
+    staffId,
   ];
   const data = await db.query(sql, staffParam);
   res.json({

@@ -1,5 +1,5 @@
 const db = require("../config/db");
-const {validation, invoiceNumber} = require("../helper/helper");
+const {validation, invoiceNumber} = require("../helper/services");
 
 const generateInvoiceNo = async () => {
     const data = await db.query("SELECT MAX( order_id ) as id FROM `tbl_order`")
@@ -18,8 +18,8 @@ const getSignleOrder = async (req, res) => {
   });
 };
 const getOrderByCustomer = async (req, res) => {
-  const { customer_id } = req.body;
-  const list = await db.query("SELECT * FROM tbl_order WHERE customer_id =?",[customer_id]);
+  const { customerId } = req.body;
+  const list = await db.query("SELECT * FROM tbl_order WHERE customer_id =?",[customerId]);
   res.json({
     list: list,
   });
@@ -29,17 +29,17 @@ const createOrder = async (req, res) => {
   try{
     db.beginTransaction();
     const {
-      customer_id, address_id, payment_id, comment
+      customerId, addressId, paymentId, comment
     } = req.body;
     var msg = {}
-    if(validation(customer_id)){
-      msg.customer_id = "Customer Id is required!"
+    if(validation(customerId)){
+      msg.customerId = "Customer Id is required!"
     }
-    if(validation(payment_id)){
-      msg.payment_id = "Payment Id is required!"
+    if(validation(paymentId)){
+      msg.paymentId = "Payment Id is required!"
     }
-    if(validation(address_id)){
-      msg.address_id = "Address Id is required!"
+    if(validation(addressId)){
+      msg.addressId = "Address Id is required!"
     }
     if(Object.keys(msg).length > 0){
       res.json({
@@ -50,17 +50,17 @@ const createOrder = async (req, res) => {
     }
     //finding address customer info by address id (from client)
     const sqlAdress = "SELECT * FROM tbl_customer_address WHERE address_id =?"
-    const address = await db.query(sqlAdress,[address_id])
+    const address = await db.query(sqlAdress,[addressId])
     if(address?.length > 0){
 
       //object address filed
-      const {first_name, last_name, tel, address_desc} = address[0]
+      const {firstName, lastName, tel, addressDesc} = address[0]
 
       //finding total order
       const sqlSelectProduct = "SELECT cart.*, pro.price FROM tbl_cart cart "+
       "INNER JOIN tbl_product pro ON (cart.product_id = pro.product_id) "+
       "WHERE cart.customer_id =?" 
-      const product = await db.query(sqlSelectProduct,[customer_id])
+      const product = await db.query(sqlSelectProduct,[customerId])
       if(product.length > 0) {
         //finding total amount base from cart by customer
         var order_total = 0
@@ -74,7 +74,7 @@ const createOrder = async (req, res) => {
         var sqlOrder = "INSERT INTO `tbl_order` "+
         "(customer_id, payment_id, order_status_id, invoice_no, comment, order_total, first_name, last_name, telephone, address_desc)"+
         "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        const orderParam = [customer_id, payment_id, order_status_id, invoice_no, comment, order_total, first_name, last_name, tel, address_desc] 
+        const orderParam = [customerId, paymentId, order_status_id, invoice_no, comment, order_total, firstName, lastName, tel, addressDesc] 
         const order = await db.query(sqlOrder,orderParam)
 
         // Insert order details and update product quantities
@@ -91,7 +91,7 @@ const createOrder = async (req, res) => {
           })
         )
         //clear cart by customer
-        await db.query("DELETE FROM tbl_cart WHERE customer_id =? ", [customer_id])
+        await db.query("DELETE FROM tbl_cart WHERE customer_id =? ", [customerId])
 
         res.json({
           msg: "Your order is completed!",
@@ -124,8 +124,12 @@ const updateOrder = async (req, res) => {
   });
 };
 const deleteOrder = async (req, res) => {
+  let id = req.params.id
+  let sql = "DELETE FROM tbl_order WHERE order_id = ?"
+  let paramId = id
+  const data = await db.query(sql,paramId)
   res.json({
-    list: "order was remove",
+    data: data
   });
 };
 

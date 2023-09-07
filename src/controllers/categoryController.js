@@ -1,5 +1,6 @@
 const db = require("../config/db");
-const {validation} = require("../helper/helper")
+const {validation} = require("../helper/services")
+
 const getAllCategory = async(req, res) => {
   sql = 'SELECT * FROM tbl_category'
   await db.query(sql,(error,row) => {
@@ -37,14 +38,14 @@ const getOne = async (req, res) => {
 
 const createCategory = async (req, res) => {
   const {
-    category_name,
+    categoryName,
     description,
-    parent_id,
+    parentId,
     status,
   } = req.body;
   var msg = {}
-  if(validation(category_name)){
-    msg.category_name = "Category Name is required!"
+  if(validation(categoryName)){
+    msg.categoryName = "Category Name is required!"
   }
   if(Object.keys(msg).length > 0){
     res.json({
@@ -54,7 +55,7 @@ const createCategory = async (req, res) => {
     return false;
   }
   let sql = 'INSERT INTO tbl_category (`category_name` , `description`, `parent_id`, `status`) VALUES(?,?,?,?)'
-  let data = [category_name,description,parent_id,status]
+  let data = [categoryName,description,parentId,status]
   await db.query(sql,data,(error,row)=> {
     if(!error){
       res.json({
@@ -72,15 +73,15 @@ const createCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   const {
-    category_id,
-    category_name,
+    categoryId,
+    categoryName,
     description,
-    parent_id,
+    parentId,
     status
   } = req.body
   var msg = {}
-  if(validation(category_name)){
-    msg.category_name = "Category Name is required!"
+  if(validation(categoryName)){
+    msg.categoryName = "Category Name is required!"
   }
   if(Object.keys(msg).length > 0){
     res.json({
@@ -90,7 +91,7 @@ const updateCategory = async (req, res) => {
     return false
   }
   let sql = 'UPDATE tbl_category SET category_name = ?, description = ?, parent_id =?, status =? WHERE category_id =?'
-  let param_sql = [category_name,description,parent_id,status,category_id]
+  let param_sql = [categoryName, description, parentId, status, categoryId]
   await db.query(sql,param_sql,(error,row)=>{
     if(!error){
       res.json({
