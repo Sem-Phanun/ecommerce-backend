@@ -3,7 +3,6 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const app = express();
-
 //middleware
 app.use(bodyParser.json());
 app.use(express.json());
@@ -20,9 +19,9 @@ const cart = require('./routes/cartRoute')
 const order = require('./routes/orderRoute')
 const staff = require('./routes/staffRoute')
 
+product(app)
 customer(app);
 category(app);
-product(app);
 wishlist(app);
 payment_method(app);
 order_status(app);

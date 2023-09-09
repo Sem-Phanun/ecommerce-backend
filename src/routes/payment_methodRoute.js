@@ -1,10 +1,12 @@
-const paymentMethodController = require('../controllers/payment_methodController')
+const paymentController = require('../controllers/payment_methodController')
 // const userGuard = require("../controllers/authController")
 const base_route = '/api/payment_method'
 const paymentMethod = (app) => {
-    app.get(`${base_route}`,paymentMethodController.getAllPaymentMethod)
-    app.post(`${base_route}`,paymentMethodController.createPaymentMethod)
-    app.delete(`${base_route}/:id`, paymentMethodController.removePaymentMethod)
+    // app.post('/create-checkout-session', paymentController.create)
+    // app.get('/order/success', paymentController.paymentSuccess)
+    app.get(`${base_route}`,paymentController.getAllPaymentMethod)
+    app.post(`${base_route}`,paymentController.createPaymentMethod)
+    app.delete(`${base_route}/:id`, paymentController.removePaymentMethod)
 }
 
 module.exports = paymentMethod

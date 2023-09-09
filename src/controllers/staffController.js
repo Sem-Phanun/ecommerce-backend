@@ -23,17 +23,17 @@ const getSingleStaff = async (req, res) => {
   });
 };
 const staffRegisterInfo = async (req, res) => {
-  // db.beginTransaction();
-  const { role_id, first_name, last_name,username, password, tel, email, address, province } = req.body;
+  const { roleId, firstName, lastName, email, password, tel, address } =
+    req.body;
   var msg = {};
-  if (validation(first_name)) {
-    msg.first_name = "First Name is required!";
+  if (validation(firstName)) {
+    msg.firstName = "First Name is required!";
   }
-  if (validation(last_name)) {
-    msg.last_name = "Last Name is required!";
+  if (validation(lastName)) {
+    msg.lastName = "Last Name is required!";
   }
-  if (validation(username)) {
-    msg.tel = "Username is required!";
+  if (validation(email)) {
+    msg.email = "Email is required!";
   }
   if (Object.keys(msg).length > 0) {
     res.json({
@@ -42,13 +42,22 @@ const staffRegisterInfo = async (req, res) => {
     });
     return false;
   }
+  const existAdminQuery = "SELECT staff_id WHERE email = ? ";
+  const existAdmin = await db.query(existAdminQuery,[email]);
+  if(existAdmin.length > 0){
+    res.json({
+      error: true,
+      msg: "Account Already exist."
+    })
+    return false;
+  }
   const sql =
-      "INSERT INTO tbl_staff (role_id, first_name, last_name, username, password, tel, email, address, province)" +
-      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  const paramSql = [role_id, first_name, last_name, username, password, tel, email, address, province];
+    "INSERT INTO tbl_staff (role_id, first_name, last_name, email, tel, password, address)" +
+    "VALUES(?, ?, ?, ?, ?, ?, ?)";
+  const paramSql = [roleId, firstName, lastName, email, tel, password, address];
   const list = await db.query(sql, paramSql);
   res.json({
-    message: "Create success",
+    message: "Admin Account Create success.",
     list: list,
   });
 };
@@ -67,7 +76,7 @@ const login = async (req, res) => {
       error: true,
       msg: msg,
     });
-    return false
+    return false;
   }
   const sql = "SELECT * FROM tbl_staff WHERE email = ?";
   var user = await db.query(sql, [email]);
@@ -84,12 +93,12 @@ const login = async (req, res) => {
       };
       var access_token = jwt.sign(
         { data: { ...obj } },
-        process.env.SECRET_KEY,
+        process.env.ACCESS_TOKEN,
         { expiresIn: "7d" }
       );
       var refresh_token = jwt.sign(
         { data: { ...obj } },
-        process.env.SECRET_KEY
+        process.env.REFRESH_TOKEN
       );
       res.json({
         ...obj,
@@ -110,6 +119,58 @@ const login = async (req, res) => {
   }
 };
 
+//refresh_token
+const refreshToken = async (req, res) => {
+  var { refreshToken } = req.body;
+  if (validation(refreshToken)) {
+    res.status(401).json({
+      message: "Unauthorized!",
+    });
+  } else {
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN,
+      async (error, result) => {
+        if (error) {
+          res.status(401).json({
+            message: "Unauthorized!",
+            error: error,
+          });
+        } else {
+          var email = result.data.user.email;
+          var user = await db.query("SELECT * FROM tbl_staff WHERE email = ?", [
+            email,
+          ]);
+          user = user[0];
+          delete user.password;
+          var permission = await getPermission(user.staff_id);
+          var obj = {
+            user: user,
+            permission: permission,
+          };
+          var access_token = jwt.sign(
+            { data: { ...obj } },
+            process.env.ACCESS_TOKEN,
+            { expiresIn: "7d" }
+          );
+          var refresh_token = jwt.sign(
+            { data: { ...obj } },
+            process.env.REFRESH_TOKEN
+          );
+          res.json({
+            ...obj,
+            access_token: access_token,
+            refresh_token: refresh_token,
+          });
+          res.json({
+            refresh_token: result,
+          });
+        }
+      }
+    );
+  }
+};
+
 const setPassword = async (req, res) => {
   const { email, password } = req.body;
   var msg = {};
@@ -124,7 +185,7 @@ const setPassword = async (req, res) => {
       error: true,
       msg: msg,
     });
-    return 
+    return;
   }
   const staff = "SELECT * FROM tbl_staff WHERE email = ?";
   const list = await db.query(staff, [email]);
@@ -146,7 +207,7 @@ const setPassword = async (req, res) => {
   }
 };
 const updateStaffInfo = async (req, res) => {
-  const { staffId, firstName, lastName, username, password, tel, email, address, province } =
+  const { staffId, firstName, lastName, email, tel, password, address } =
     req.body;
   var msg = {};
   if (validation(staffId)) {
@@ -158,8 +219,8 @@ const updateStaffInfo = async (req, res) => {
   if (validation(lastName)) {
     msg.lastName = "Last Name is required!";
   }
-  if (validation(username)) {
-    msg.tel = "Username is required!";
+  if (validation(email)) {
+    msg.email = "Email is required!";
   }
   if (Object.keys(msg).length > 0) {
     res.json({
@@ -170,16 +231,14 @@ const updateStaffInfo = async (req, res) => {
   }
   var sql =
     "UPDATE tbl_staff " +
-    " SET first_name =? , last_name = ?,username =?, password = ?, tel = ?, email= ?, address = ? , province = ? WHERE staff_id =?";
+    " SET first_name =? , last_name = ?, email =?, tel = ?, password = ?, address = ? WHERE staff_id =?";
   const staffParam = [
     firstName,
     lastName,
-    username,
-    password,
-    tel,
     email,
+    tel,
+    password,
     address,
-    province,
     staffId,
   ];
   const data = await db.query(sql, staffParam);
@@ -203,4 +262,6 @@ module.exports = {
   deleteStaffInfo,
   login,
   setPassword,
+  refreshToken,
 };
+

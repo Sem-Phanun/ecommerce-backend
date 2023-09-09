@@ -36,127 +36,85 @@ const getSingleCustomer = async (req, res) => {
 
 //register
 const registerAndCreateAddress = async (req, res) => {
-  var {
-    email,
-    password,
-    firstName,
-    lastName,
-    provinceId,
-    tel,
-    addressDes,
-  } = req.body;
+  await db.beginTransaction();
+  var { email, password, firstName, lastName, provinceId, tel, addressDes } = req.body;
 
   //validation checking
   var msg = {};
-  if(validation(email)){
-    msg.email = "Email is required!"
+  if (validation(email)) {
+    msg.email = "Email is required!";
   }
-  if(validation(password)){
-    msg.password = "Password is required!"
+  if (validation(password)) {
+    msg.password = "Password is required!";
   }
-  if(validation(firstName)){
-    msg.firstName = "First Name is required!"
+  if (validation(firstName)) {
+    msg.firstName = "First Name is required!";
   }
-  if(validation(lastName)){
-    msg.lastName = "Last Name is required!"
+  if (validation(lastName)) {
+    msg.lastName = "Last Name is required!";
   }
-  if(validation(provinceId)){
-    msg.provinceId = "Province is required!"
+  if (validation(provinceId)) {
+    msg.provinceId = "Province is required!";
   }
   if(validation(tel)){
     msg.tel = "Telephone is required!"
   }
-  if(Object.keys(msg).length > 0 ){
+  if (Object.keys(msg).length > 0) {
     res.json({
       msg: msg,
-      error: true
-    })
+      error: true,
+    });
     return false;
   }
-  try{
-    var sqlFind = "SELECT customer_id FROM tbl_customer WHERE email = ?"; //customer checking by email
-    const result =  db.query(sqlFind, [email])
-    if(result.length > 0){
-      //has record user 
+  try {
+    //customer checking by email
+    const existUserQuery = "SELECT customer_id FROM tbl_customer WHERE email = ?";
+    const existUser = await db.query(existUserQuery, [email]);
+    if (existUser.length > 0) {
+      // User with the same email already exists
       res.json({
         error: true,
-        msg: "Account already exist"
-      })
+        msg: "Account already exist with this emial.",
+      });
+      return false;
     }
-    var password = await bcrypt.hashSync(password,10)
-
-    await db.beginTransaction()
-    var sqlCustomer = "INSERT INTO tbl_customer (role_id, first_name, last_name, email, password)"+
-        " VALUES(5, ?, ?, ?, ?)";
-    var customerParam = [firstName, lastName, email, password]
-    const insertCustomer = await db.query(sqlCustomer,customerParam)
-
-    const customerId = insertCustomer.insertId
-    var sqlAddress = "INSERT INTO tbl_customer_address"+
-          " (customer_id, province_id, first_name, last_name, tel, address_desc)"+
-          " VALUES(?, ?, ?, ?, ?, ?)"
-    var paramAddress  = [
+    var password = await bcrypt.hashSync(password, 10);
+    var sqlCustomer =
+      "INSERT INTO tbl_customer (role_id, first_name, last_name, email, password)" +
+      " VALUES(5, ?, ?, ?, ?)";
+    var customerParam = [firstName, lastName, email, password];
+    const insertCustomer = await db.query(sqlCustomer, customerParam);
+    const customerId = insertCustomer.insertId;
+    var sqlAddress =
+      "INSERT INTO tbl_address" +
+      " (customer_id, province_id, first_name, last_name, tel, address_des)" +
+      " VALUES(?, ?, ?, ?, ?, ?)";
+    var paramAddress = [
       customerId,
       provinceId,
       firstName,
       lastName,
       tel,
-      addressDes
-    ] 
-    await db.query(sqlAddress,paramAddress)
+      addressDes,
+    ];
+    await db.query(sqlAddress, paramAddress);
     res.json({
       msg: "Account Created",
-      data: insertCustomer
-    })
+      data: insertCustomer,
+    });
     await db.commit();
-  }catch(error){
+  }catch (error) {
+
     await db.rollback();
+    console.error("Error during registration:", error);
+
+    // Send an appropriate error response to the client
     res.status(500).json({
       error: true,
-      msg: "An error occurred during registration."
+      msg: "An error occurred during registration.",
     });
   }
-  // else {
-  //   //bcrypt password
-  //   password = bcrypt.hashSync(password,10);
-  //   db.beginTransaction()
-  //   var sqlCustomer = "INSERT INTO tbl_customer (role_id, first_name, last_name, email, password)"+
-  //     " VALUES(5, ?, ?, ?, ?)";
-  //   var customerParam = [firstName, lastName, email, password]
-  //   await db.query(sqlCustomer, customerParam, (error, results)=> {
-  //     if(!error){
-  //       //inserting cusotmer address
-  //       var sqlAddress = "INSERT INTO tbl_customer_address"+
-  //       " (customer_id, province_id, first_name, last_name, tel, address_desc)"+
-  //       " VALUES(?, ?, ?, ?, ?, ?)"
-  //       var paramAddress  = [
-  //         results.insertId,
-  //         provinceId,
-  //         firstName,
-  //         lastName,
-  //         tel,
-  //         addressDes
-  //       ] 
-  //       db.query(sqlAddress, paramAddress, (error,results) => {
-  //         if(!error){
-  //           res.json({
-  //             msg: "Account created!",
-  //             data: results
-  //           })
-  //           db.commit();
-  //         }else {
-  //           db.rollback();
-  //           res.json({
-  //             error: true,
-  //             msg: error
-  //           })
-  //         }
-  //       })
-  //     }
-  //   })
-  // }
 };
-
 
 //handle login
 const login = async (req, res) => {
@@ -192,12 +150,12 @@ const login = async (req, res) => {
       };
       var access_token = jwt.sign(
         { data: { ...obj } },
-        process.env.SECRET_KEY,
+        process.env.ACCESS_TOKEN,
         { expiresIN: "7d" }
       );
       var refresh_token = jwt.sign(
         { data: { ...obj } },
-        process.env.SECRET_KEY
+        process.env.ACCESS_TOKEN
       );
       res.json({
         ...obj,
@@ -232,8 +190,8 @@ const updateCustomer = async (req, res) => {
   if (validation(lastName)) {
     msg.lastName = "Last Name is required!";
   }
-  if(validation(email)){
-    msg.email = "Email is required!"
+  if (validation(email)) {
+    msg.email = "Email is required!";
   }
   if (Object.keys(msg).length > 0) {
     res.json({
@@ -290,7 +248,7 @@ const removeCustomer = async (req, res) => {
 const addressList = async (req, res) => {
   var { customerId } = req.body;
   const list = await db.query(
-    "SELECT * FROM tbl_customer_address WHERE customer_id=?",
+    "SELECT * FROM tbl_address WHERE customer_id=?",
     [customerId]
   );
   res.json({
@@ -303,7 +261,7 @@ const addressList = async (req, res) => {
 const getOneAddress = async (req, res) => {
   let id = req.params.id;
   const list = await db.query(
-    "SELECT * FROM tbl_customer_address WHERE address_id= ?",
+    "SELECT * FROM tbl_address WHERE address_id= ?",
     [id]
   );
   res.json({
@@ -314,7 +272,7 @@ const getOneAddress = async (req, res) => {
 
 //handle add new address of customer
 const addNewAddress = async (req, res) => {
-  var { customerId, firstName, lastName, tel, provinceId, addressDesc } =
+  var { customerId, firstName, lastName, email, provinceId, addressDes } =
     req.body;
 
   var msg = {};
@@ -327,14 +285,14 @@ const addNewAddress = async (req, res) => {
   if (validation(lastName)) {
     msg.lastName = "Last Name is required!";
   }
-  if (validation(tel)) {
-    msg.tel = "Telephone is required!";
+  if (validation(email)) {
+    msg.eamil = "Email is required!";
   }
   if (validation(provinceId)) {
     msg.provinceId = "Province id is required!";
   }
-  if (validation(addressDesc)) {
-    msg.addressDesc = "Address description is required!";
+  if (validation(addressDes)) {
+    msg.addressDes = "Address description is required!";
   }
 
   if (Object.keys(msg).length > 0) {
@@ -346,15 +304,8 @@ const addNewAddress = async (req, res) => {
   }
 
   var sql =
-    "INSERT INTO tbl_customer_address (customer_id, province_id, first_name, last_name, tel, address_desc) VALUES(?,?,?,?,?,?)";
-  var param = [
-    customerId,
-    provinceId,
-    firstName,
-    lastName,
-    tel,
-    addressDesc
-  ];
+    "INSERT INTO tbl_address (customer_id, province_id, first_name, last_name, email, address_des) VALUES(?,?,?,?,?,?)";
+  var param = [customerId, provinceId, firstName, lastName, email, addressDes];
   await db.query(sql, param, (error, row) => {
     if (!error) {
       res.json({
@@ -379,7 +330,7 @@ const updateAddress = async (req, res) => {
     lastName,
     tel,
     provinceId,
-    addressDesc,
+    addressDes,
   } = req.body;
 
   var msg = {};
@@ -401,7 +352,7 @@ const updateAddress = async (req, res) => {
   if (validation(provinceId)) {
     msg.provinceId = "Province id is required!";
   }
-  if (validation(addressDesc)) {
+  if (validation(addressDes)) {
     msg.addressDes = "Address description is required!";
   }
 
@@ -414,14 +365,14 @@ const updateAddress = async (req, res) => {
   }
 
   var sql =
-    "UPDATE tbl_customer_address SET customer_id = ?, province_id = ?, first_name = ?, last_name = ?, tel = ? , address_desc =?";
+    "UPDATE tbl_address SET customer_id = ?, province_id = ?, first_name = ?, last_name = ?, email = ? , address_des =?";
   var param = [
     customerId,
     provinceId,
     firstName,
     lastName,
-    tel,
-    addressDesc,
+    email,
+    addressDes,
     addressId,
   ];
   await db.query(sql, param, (error, row) => {
@@ -442,7 +393,7 @@ const updateAddress = async (req, res) => {
 //hanle delete address record of customer
 const removeAddress = async (req, res) => {
   let id = req.params.id;
-  const sql = "DELETE FROM tbl_customer_address WHERE address_id =?";
+  const sql = "DELETE FROM tbl_address WHERE address_id =?";
   await db.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({

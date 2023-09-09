@@ -49,7 +49,7 @@ const createOrder = async (req, res) => {
       return false
     }
     //finding address customer info by address id (from client)
-    const sqlAdress = "SELECT * FROM tbl_customer_address WHERE address_id =?"
+    const sqlAdress = "SELECT * FROM tbl_address WHERE address_id =?"
     const address = await db.query(sqlAdress,[addressId])
     if(address?.length > 0){
 
