@@ -1,10 +1,11 @@
-const cartController = require('../controllers/cartController')
-const rout_name = '/api/cart'
-const cart = (app) => {
-    app.get(`${rout_name}/:id`, cartController.getByCustomer)
-    app.post(`${rout_name}`, cartController.addCart)
-    app.put(`${rout_name}`,  cartController.updateCart)
-    app.delete(`${rout_name}/:id`, cartController.removeCart)
-}
+const express = require("express")
+const router = express.Router()
+const cart = require('../controllers/cartController')
+const baseUrl = "/api/cart"
+router.get(`${baseUrl}/:id`,cart.getByCustomer);
+router.post(`${baseUrl}`, cart.addCart)
+router.put(`${baseUrl}`,cart.updateCart)
+router.delete(`${baseUrl}/:id`,cart.removeCart)
 
-module.exports = cart
+
+module.exports = router;

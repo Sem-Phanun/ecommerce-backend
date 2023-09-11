@@ -1,9 +1,10 @@
+const express = require("express")
+const router = express.Router()
 const orderStatus = require('../controllers/order_statusController')
-// const userGuard = require("../controllers/authController")
-const base_route = '/api/order_status'
-const order_status = (app) => {
-    app.get(`${base_route}`,orderStatus.getAll)
-    app.post(`${base_route}`,orderStatus.create)
-    app.delete(`${base_route}/:id`,orderStatus.remove)
-}
-module.exports = order_status
+const baseUrl = "/api/order_status"
+
+router.get(`${baseUrl}`,orderStatus.getAll)
+router.post(`${baseUrl}`,orderStatus.create)
+router.delete(`${baseUrl}/:id`,orderStatus.remove)
+
+module.exports = router

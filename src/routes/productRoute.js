@@ -1,13 +1,14 @@
+const express = require("express")
+const router = express.Router()
 const productController = require('../controllers/productController')
-// const userGuard = require("../controllers/authController")
-const base_route = '/api/product' 
-const product = (app) => {
-    app.get(`${base_route}`,productController.getAllProduct)
-    app.get(`${base_route}/:id`,productController.getSingleProduct)
-    app.post(`${base_route}`,productController.createProduct)
-    app.put(`${base_route}`,productController.updateProduct)
-    app.delete(`${base_route}/:id`,productController.removeProduct)
-    app.put(`${base_route}/change_status`,productController.changeStatus)
-}
 
-module.exports = product
+const baseUrl = "/api/product" 
+
+router.get(`${baseUrl}`,productController.getAllProduct)
+router.get(`${baseUrl}/:id`,productController.getSingleProduct)
+router.post(`${baseUrl}`,productController.createProduct)
+router.put(`${baseUrl}`,productController.updateProduct)
+router.delete(`${baseUrl}/:id`,productController.removeProduct)
+router.put(`${baseUrl}/change_status`,productController.changeStatus)
+
+module.exports = router;

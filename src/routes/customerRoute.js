@@ -1,19 +1,21 @@
-const customerCt = require("../controllers/customerController");
+const express = require("express")
+const router = express.Router()
+const customer = require("../controllers/customerController");
 const { requireAuth } = require("../helper/auth")
-const base_route = "/api/customer";
-const customer = (app) => {
-  app.get(base_route, requireAuth, customerCt.getCustomerList);
-  app.get(`${base_route}/:id`, customerCt.getSingleCustomer);
-  app.post(`${base_route}`,customerCt.registerAndCreateAddress);
-  app.post(`${base_route}/auth/login`,requireAuth, customerCt.login)
-  app.put(`${base_route}`, customerCt.updateCustomer);
-  app.delete(`${base_route}/:id`,customerCt.removeCustomer);
+const baseUrl = "/api/customer";
 
-  app.get(`${base_route}_address`, customerCt.addressList);
-  app.get(`${base_route}_address/:id`, customerCt.getOneAddress);
-  app.post(`${base_route}_address`, customerCt.addNewAddress);
-  app.put(`${base_route}_address`, customerCt.updateAddress);
-  app.delete(`${base_route}_address/:id`, customerCt.removeAddress);
-};
+router.get(baseUrl, requireAuth, customer.getCustomerList);
+router.get(`${baseUrl}/:id`, customer.getSingleCustomer);
+router.post(`${baseUrl}`,customer.registerAndCreateAddress);
+router.post(`${baseUrl}/auth/login`,requireAuth, customer.login)
+router.put(`${baseUrl}`, customer.updateCustomer);
+router.delete(`${baseUrl}/:id`,customer.removeCustomer);
 
-module.exports = customer;
+router.get(`${baseUrl}_address`, customer.addressList);
+router.get(`${baseUrl}_address/:id`, customer.getOneAddress);
+router.post(`${baseUrl}_address`, customer.addNewAddress);
+router.put(`${baseUrl}_address`, customer.updateAddress);
+router.delete(`${baseUrl}_address/:id`, customer.removeAddress);
+
+
+module.exports = router;

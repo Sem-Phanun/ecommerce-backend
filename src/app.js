@@ -9,25 +9,28 @@ app.use(express.json());
 dotenv.config();
 app.use(cors((origin = "*")));
 
-const category = require("./routes/categoryRoute");
-const customer = require("./routes/customerRoute");
-const product = require('./routes/productRoute')
+const categoryRoute = require("./routes/categoryRoute");
+const customerRoute = require("./routes/customerRoute");
+const productRoute = require('./routes/productRoute')
 const wishlist = require('./routes/wishlistRoute')
-const payment_method = require('./routes/payment_methodRoute')
-const order_status = require('./routes/order_statusRoute')
-const cart = require('./routes/cartRoute')
-const order = require('./routes/orderRoute')
-const staff = require('./routes/staffRoute')
+const paymentMethod = require('./routes/payment_methodRoute')
+const orderStatus = require('./routes/order_statusRoute')
+const cartRoute = require('./routes/cartRoute')
+const orderRoute = require('./routes/orderRoute')
+const staffRoute = require('./routes/staffRoute')
 
-product(app)
-customer(app);
-category(app);
-wishlist(app);
-payment_method(app);
-order_status(app);
-cart(app);
-order(app);
-staff(app);
+
+
+app.use(cartRoute);
+app.use(categoryRoute);
+app.use(customerRoute)
+app.use(productRoute)
+app.use(wishlist)
+app.use(paymentMethod)
+app.use(orderStatus)
+app.use(orderRoute)
+app.use(staffRoute)
+
 
 app.listen(process.env.PORT, () => {
   console.log("Server running on port", +process.env.PORT);

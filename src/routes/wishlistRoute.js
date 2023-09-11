@@ -1,10 +1,11 @@
+const express = require("express")
+const router = express.Router()
 const wishlistController = require('../controllers/wishlistController')
-// const userGuard = require("../controllers/authController")
-const base_route = '/api/wishlist'
-const wishlist = (app) => {
-    app.get(`${base_route}`,wishlistController.getAllwishlist)
-    app.post(`${base_route}`,wishlistController.createWishlist)
-    app.delete(`${base_route}/:id`,wishlistController.removeWishlist)
-}
 
-module.exports = wishlist
+const baseUrl = '/api/wishlist'
+
+router.get(`${baseUrl}`,wishlistController.getAllwishlist)
+router.post(`${baseUrl}`,wishlistController.createWishlist)
+router.delete(`${baseUrl}/:id`,wishlistController.removeWishlist)
+
+module.exports = router

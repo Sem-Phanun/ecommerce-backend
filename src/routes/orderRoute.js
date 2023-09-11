@@ -1,12 +1,12 @@
+const express = require("express")
+const router = express.Router()
 const orderController = require('../controllers/orderController')
-// const userGuard = require("../controllers/authController")
-const routeName = '/api/order'
-const order = (app) => {
-    app.get(`${routeName}`, orderController.getAllOrderList)
-    app.get(`${routeName}/:id`, orderController.getSignleOrder)
-    app.post(`${routeName}`, orderController.createOrder)
-    app.put(`${routeName}`,orderController.updateOrder)
-    app.delete(`${routeName}`, orderController.deleteOrder)
-}
+const baseUrl = "/api/order"
 
-module.exports = order
+router.get(`${baseUrl}`, orderController.getAllOrderList)
+router.get(`${baseUrl}/:id`, orderController.getSignleOrder)
+router.post(`${baseUrl}`, orderController.createOrder)
+router.put(`${baseUrl}`,orderController.updateOrder)
+router.delete(`${baseUrl}`, orderController.deleteOrder)
+
+module.exports = router

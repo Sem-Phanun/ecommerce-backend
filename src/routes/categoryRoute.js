@@ -1,11 +1,13 @@
-const controller = require("../controllers/categoryController");
-// const userGuard = require("../controllers/authController")
-const route = "/api/category";
-const category = (app) => {
-  app.get(`${route}`, controller.getAllCategory);
-  app.get(`${route}/:id`, controller.getOne);
-  app.post(`${route}`, controller.createCategory);
-  app.put(`${route}`, controller.updateCategory);
-  app.delete(`${route}`, controller.removeCategory);
-};
-module.exports = category;
+const express = require("express")
+const router = express.Router()
+const category = require("../controllers/categoryController");
+const baseUrl = "/api/category";
+
+
+router.get(`${baseUrl}`,category.getAllCategory)
+router.get(`${baseUrl}/:id`,category.getOne)
+router.post(`${baseUrl}`, category.createCategory)
+router.put(`${baseUrl}`,category.updateCategory)
+router.delete(`${baseUrl}`,category.removeCategory)
+
+module.exports = router;
