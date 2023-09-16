@@ -42,7 +42,7 @@ const staffRegisterInfo = async (req, res) => {
     });
     return false;
   }
-  const existAdminQuery = "SELECT staff_id WHERE email = ? ";
+  const existAdminQuery = "SELECT staff_id FROM tbl_staff WHERE email = ? ";
   const existAdmin = await db.query(existAdminQuery,[email]);
   if(existAdmin.length > 0){
     res.json({
@@ -175,7 +175,7 @@ const setPassword = async (req, res) => {
   const { email, password } = req.body;
   var msg = {};
   if (validation(email)) {
-    msg.username = "Please fill email";
+    msg.email = "Please fill email";
   }
   if (validation(password)) {
     msg.password = "Please fill password";

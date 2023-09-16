@@ -8,7 +8,7 @@ dotenv.config();
 
 const getCustomerList = async (req, res) => {
   const data = await db.query(
-    "SELECT customer_id, first_name, last_name, email ,status FROM tbl_customer"
+    "SELECT customer_id, first_name, last_name, email FROM tbl_customer"
   );
   res.json({
     data: data,
@@ -18,7 +18,7 @@ const getCustomerList = async (req, res) => {
 const getSingleCustomer = async (req, res) => {
   let id = req.params.id;
   let sql =
-    "SELECT customer_id, first_name, last_name, email, status FROM tbl_customer WHERE customer_id = ?";
+    "SELECT customer_id, first_name, last_name, email FROM tbl_customer WHERE customer_id = ?";
   await db.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({
@@ -150,8 +150,7 @@ const login = async (req, res) => {
       };
       var access_token = jwt.sign(
         { data: { ...obj } },
-        process.env.ACCESS_TOKEN,
-        { expiresIN: "7d" }
+        process.env.ACCESS_TOKEN
       );
       var refresh_token = jwt.sign(
         { data: { ...obj } },
