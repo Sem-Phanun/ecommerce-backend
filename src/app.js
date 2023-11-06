@@ -17,7 +17,7 @@ const paymentMethod = require('./routes/payment_methodRoute')
 const orderStatus = require('./routes/order_statusRoute')
 const cartRoute = require('./routes/cartRoute')
 const orderRoute = require('./routes/orderRoute')
-const staffRoute = require('./routes/staffRoute')
+const employeeRoute = require('./routes/employeeRoute')
 
 
 
@@ -29,9 +29,9 @@ app.use(wishlist)
 app.use(paymentMethod)
 app.use(orderStatus)
 app.use(orderRoute)
-app.use(staffRoute)
+app.use(employeeRoute)
 
 
 app.listen(process.env.PORT, () => {
-  console.log("Server running on port", +process.env.PORT);
+  console.log("Server running on port", + process.env.PORT);
 });
