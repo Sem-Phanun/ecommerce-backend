@@ -103,6 +103,8 @@ const updateProduct = async (req, res) => {
   const list = await db.query(sql, param);
   res.json({
     data: list,
+    body: req.body,
+    file: req.files 
   });
 };
 const removeProduct = async (req, res) => {

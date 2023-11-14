@@ -32,6 +32,9 @@ app.use(orderRoute)
 app.use(employeeRoute)
 
 
+const myDb = require('./config/db')
+console.log(myDb)
+
 app.listen(process.env.PORT, () => {
   console.log("Server running on port", + process.env.PORT);
 });
