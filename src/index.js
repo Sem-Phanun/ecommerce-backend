@@ -9,6 +9,7 @@ app.use(express.json());
 dotenv.config();
 app.use(cors((origin = "*")));
 
+
 const categoryRoute = require("./routes/categoryRoute");
 const customerRoute = require("./routes/customerRoute");
 const productRoute = require('./routes/productRoute')
@@ -18,6 +19,8 @@ const orderStatus = require('./routes/order_statusRoute')
 const cartRoute = require('./routes/cartRoute')
 const orderRoute = require('./routes/orderRoute')
 const employeeRoute = require('./routes/employeeRoute')
+
+
 
 
 
@@ -31,9 +34,6 @@ app.use(orderStatus)
 app.use(orderRoute)
 app.use(employeeRoute)
 
-
-const myDb = require('./config/db')
-console.log(myDb)
 
 app.listen(process.env.PORT, () => {
   console.log("Server running on port", + process.env.PORT);

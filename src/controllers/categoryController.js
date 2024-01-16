@@ -4,15 +4,15 @@ const {validation} = require("../helper/services")
 const getAllCategory = async(req, res) => {
   sql = 'SELECT * FROM tbl_category'
   await db.query(sql,(error,row) => {
-    if(!error){
+    if(error){
       res.json({
-        msg: "category list",
-        list: row
+        msg: error,
+        error: true,
       })
     }else {
       res.json({
-        msg: error,
-        error: true
+        msg: "category list",
+        list: row
       })
     }
   })

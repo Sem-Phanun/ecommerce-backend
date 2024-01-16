@@ -5,7 +5,7 @@ const { requestAuth } = require("../helper/auth");
 const baseUrl = "/api/category";
 
 
-router.get(`${baseUrl}`, requestAuth ,category.getAllCategory)
+router.get(`${baseUrl}`, requestAuth,category.getAllCategory)
 router.get(`${baseUrl}/:id`, requestAuth,category.getOne)
 router.post(`${baseUrl}`,requestAuth, category.createCategory)
 router.put(`${baseUrl}`,requestAuth ,category.updateCategory)
