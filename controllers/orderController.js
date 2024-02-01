@@ -1,33 +1,33 @@
-const db = require("../config/db");
-const {validation, invoiceNumber} = require("../helper/services");
+import connect from "../config/connect"
+import {validation, invoiceNumber} from "../helper/services"
 
-const generateInvoiceNo = async () => {
-    const data = await db.query("SELECT MAX( order_id ) as id FROM `tbl_order`")
+export const generateInvoiceNo = async () => {
+    const data = await connect.query("SELECT MAX( order_id ) as id FROM `tbl_order`")
     return invoiceNumber(data[0].id)
 }
-const getAllOrderList = async (req, res) => {
-  const list = await db.query("SELECT * FROM tbl_order");
+export const getAllOrderList = async (req, res) => {
+  const list = await connect.query("SELECT * FROM tbl_order");
   res.json({
     list: list,
   });
 };
-const getSignleOrder = async (req, res) => {
-  const list = await db.query("SELECT * FROM tbl_order WHERE order_id = ?",[req.params.id]);
+export const getSignleOrder = async (req, res) => {
+  const list = await connect.query("SELECT * FROM tbl_order WHERE order_id = ?",[req.params.id]);
   res.json({
     data: list,
   });
 };
-const getOrderByCustomer = async (req, res) => {
+export const getOrderByCustomer = async (req, res) => {
   const { customerId } = req.body;
-  const list = await db.query("SELECT * FROM tbl_order WHERE customer_id =?",[customerId]);
+  const list = await connect.query("SELECT * FROM tbl_order WHERE customer_id =?",[customerId]);
   res.json({
     list: list,
   });
 };
 //
-const createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try{
-    db.beginTransaction();
+    connect.beginTransaction();
     const {
       customerId, addressId, paymentId, comment
     } = req.body;
@@ -50,7 +50,7 @@ const createOrder = async (req, res) => {
     }
     //finding address customer info by address id (from client)
     const sqlAdress = "SELECT * FROM tbl_address WHERE address_id =?"
-    const address = await db.query(sqlAdress,[addressId])
+    const address = await connect.query(sqlAdress,[addressId])
     if(address?.length > 0){
 
       //object address filed
@@ -60,7 +60,7 @@ const createOrder = async (req, res) => {
       const sqlSelectProduct = "SELECT cart.*, pro.price FROM tbl_cart cart "+
       "INNER JOIN tbl_product pro ON (cart.product_id = pro.product_id) "+
       "WHERE cart.customer_id =?" 
-      const product = await db.query(sqlSelectProduct,[customerId])
+      const product = await connect.query(sqlSelectProduct,[customerId])
       if(product.length > 0) {
         //finding total amount base from cart by customer
         var order_total = 0
@@ -75,29 +75,29 @@ const createOrder = async (req, res) => {
         "(customer_id, payment_id, order_status_id, invoice_no, comment, order_total, first_name, last_name, telephone, address_desc)"+
         "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         const orderParam = [customerId, paymentId, order_status_id, invoice_no, comment, order_total, firstName, lastName, tel, addressDesc] 
-        const order = await db.query(sqlOrder,orderParam)
+        const order = await connect.query(sqlOrder,orderParam)
 
         // Insert order details and update product quantities
         await Promise.all (
           product.map(async(item)=> {
             var sqlOderDetail = "INSERT INTO `tbl_order_detail` (order_id, product_id, quantity, price) VALUES(?, ?, ?, ?)"
             var orderDetailParam = [order.insertId, item.product_id, item.quantity, item.price]
-            await db.query(sqlOderDetail,orderDetailParam)
+            await connect.query(sqlOderDetail,orderDetailParam)
             
             //cut stock from table product
             var sqlUpdateProdcut = "UPDATE tbl_product SET quantity=(quantity-?) WHERE product_id = ?"
-            await db.query(sqlUpdateProdcut,[item.quantity, item.product_id])
+            await connect.query(sqlUpdateProdcut,[item.quantity, item.product_id])
   
           })
         )
         //clear cart by customer
-        await db.query("DELETE FROM tbl_cart WHERE customer_id =? ", [customerId])
+        await connect.query("DELETE FROM tbl_cart WHERE customer_id =? ", [customerId])
 
         res.json({
           msg: "Your order is completed!",
           data: order
         })
-        db.commit();
+        connect.commit();
       }else {
         res.json({
           error: true,
@@ -115,30 +115,21 @@ const createOrder = async (req, res) => {
     res.status(500).json({
       error: "An error occurred while processing your order.",
     });
-    db.rollback();
+    connect.rollback();
   }
 };
-const updateOrder = async (req, res) => {
+export const updateOrder = async (req, res) => {
   res.json({
     list: "order updated",
   });
 };
-const deleteOrder = async (req, res) => {
+export const deleteOrder = async (req, res) => {
   let id = req.params.id
   let sql = "DELETE FROM tbl_order WHERE order_id = ?"
   let paramId = id
-  const data = await db.query(sql,paramId)
+  const data = await connect.query(sql,paramId)
   res.json({
     data: data
   });
-};
-
-module.exports = {
-  getAllOrderList,
-  getSignleOrder,
-  getOrderByCustomer,
-  createOrder,
-  updateOrder,
-  deleteOrder,
 };
 

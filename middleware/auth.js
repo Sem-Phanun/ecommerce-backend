@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken")
-const dotenv = require("dotenv")
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 dotenv.config()
 
-exports.requestAuth = (auth) => {
+export const requestAuth = (auth) => {
     return (req, res, next) => {
         var authorization = req.headers['authorization']
         var token = null
@@ -35,23 +35,23 @@ exports.requestAuth = (auth) => {
     }
 }
 
-exports.reqestAuthV = (req, res, next) => {
-    const authorization = req.header(process.env.TOKEN_KEY)
-    var token = null
-    if(authorization != null && authorization != ""){
-        token = authorization.split(" ")
-        token = token[1]
-    }
-    if(token == null){
-        res.status(401).send({message: "Unauthorized!"})
-    }else{
-        jwt.verify(token, process.env.ACCESS_TOKEN, (error, data)=> {
-            if(error){
-                res.status(401).send({message: "Unauthorized!"})
-            }else{
-                res.user = data;
-                next();
-            }
-        })
-    }
-}
+// exports.reqestAuthV = (req, res, next) => {
+//     const authorization = req.header(process.env.TOKEN_KEY)
+//     var token = null
+//     if(authorization != null && authorization != ""){
+//         token = authorization.split(" ")
+//         token = token[1]
+//     }
+//     if(token == null){
+//         res.status(401).send({message: "Unauthorized!"})
+//     }else{
+//         jwt.verify(token, process.env.ACCESS_TOKEN, (error, data)=> {
+//             if(error){
+//                 res.status(401).send({message: "Unauthorized!"})
+//             }else{
+//                 res.user = data;
+//                 next();
+//             }
+//         })
+//     }
+// }

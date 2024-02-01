@@ -1,28 +1,28 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-const db = require("../config/db");
-const { getPermission } = require("../helper/permission");
-const { validation } = require("../helper/services");
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+import connect from '../config/db.js'
+import { getPermission } from "../helper/permission.js"
+import { validation } from "../helper/services.js"
 dotenv.config();
 
-const getAllStaffList = async (req, res) => {
+export const getAllStaffList = async (req, res) => {
   const sql =
     "SELECT first_name AS FirstName, last_name AS LastName FROM tbl_staff";
-  const list = await db.query(sql);
+  const list = await connect.query(sql);
   res.json({
     list: list,
   });
 };
-const getSingleStaff = async (req, res) => {
+export const getSingleStaff = async (req, res) => {
   const id = req.params.id;
   const sql = "SELECT * FROM tbl_staff WHERE staff_id = ? ";
-  const list = await db.query(sql, [id]);
+  const list = await connect.query(sql, [id]);
   res.json({
     list: list,
   });
 };
-const staffRegisterInfo = async (req, res) => {
+export const staffRegisterInfo = async (req, res) => {
   const { roleId, firstName, lastName, email, password, tel, address } =
     req.body;
   var msg = {};
@@ -43,7 +43,7 @@ const staffRegisterInfo = async (req, res) => {
     return false;
   }
   const existAdminQuery = "SELECT staff_id FROM tbl_staff WHERE email = ? ";
-  const existAdmin = await db.query(existAdminQuery,[email]);
+  const existAdmin = await connect.query(existAdminQuery,[email]);
   if(existAdmin.length > 0){
     res.json({
       error: true,
@@ -55,14 +55,14 @@ const staffRegisterInfo = async (req, res) => {
     "INSERT INTO tbl_staff (role_id, first_name, last_name, email, tel, password, address)" +
     "VALUES(?, ?, ?, ?, ?, ?, ?)";
   const paramSql = [roleId, firstName, lastName, email, tel, password, address];
-  const list = await db.query(sql, paramSql);
+  const list = await connect.query(sql, paramSql);
   res.json({
     message: "Admin Account Create success.",
     list: list,
   });
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   var { email, password } = req.body;
   var msg = {};
   if (validation(email)) {
@@ -79,7 +79,7 @@ const login = async (req, res) => {
     return false;
   }
   const sql = "SELECT * FROM tbl_staff WHERE email = ?";
-  var user = await db.query(sql, [email]);
+  var user = await connect.query(sql, [email]);
   if (user.length > 0) {
     var passwordCompare = user[0].password; // get password from DB
     var isCorrect = bcrypt.compareSync(password, passwordCompare);
@@ -120,7 +120,7 @@ const login = async (req, res) => {
 };
 
 //refresh_token
-const refreshToken = async (req, res) => {
+export const refreshToken = async (req, res) => {
   var { refreshToken } = req.body;
   if (validation(refreshToken)) {
     res.status(401).json({
@@ -138,7 +138,7 @@ const refreshToken = async (req, res) => {
           });
         } else {
           var email = result.data.user.email;
-          var user = await db.query("SELECT * FROM tbl_staff WHERE email = ?", [
+          var user = await connect.query("SELECT * FROM tbl_staff WHERE email = ?", [
             email,
           ]);
           user = user[0];
@@ -171,7 +171,7 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const setPassword = async (req, res) => {
+export const setPassword = async (req, res) => {
   const { email, password } = req.body;
   var msg = {};
   if (validation(email)) {
@@ -188,10 +188,10 @@ const setPassword = async (req, res) => {
     return;
   }
   const staff = "SELECT * FROM tbl_staff WHERE email = ?";
-  const list = await db.query(staff, [email]);
+  const list = await connect.query(staff, [email]);
   if (list.length > 0) {
     var passwordGenerate = bcrypt.hashSync(password, 10);
-    var update = await db.query(
+    var update = await connect.query(
       "UPDATE tbl_staff SET password = ? WHERE email = ?",
       [passwordGenerate, email]
     );
@@ -206,7 +206,7 @@ const setPassword = async (req, res) => {
     });
   }
 };
-const updateStaffInfo = async (req, res) => {
+export const updateStaffInfo = async (req, res) => {
   const { staffId, firstName, lastName, email, tel, password, address } =
     req.body;
   var msg = {};
@@ -241,27 +241,17 @@ const updateStaffInfo = async (req, res) => {
     address,
     staffId,
   ];
-  const data = await db.query(sql, staffParam);
+  const data = await connect.query(sql, staffParam);
   res.json({
     data: data,
   });
 };
-const deleteStaffInfo = async (req, res) => {
+export const deleteStaffInfo = async (req, res) => {
   var { id } = req.params;
   var sql = "DELETE FROM tbl_staff WHERE staff_id =? ";
-  const data = await db.query(sql, [id]);
+  const data = await connect.query(sql, [id]);
   res.json({
     data: data,
   });
-};
-module.exports = {
-  getAllStaffList,
-  getSingleStaff,
-  staffRegisterInfo,
-  updateStaffInfo,
-  deleteStaffInfo,
-  login,
-  setPassword,
-  refreshToken,
 };
 

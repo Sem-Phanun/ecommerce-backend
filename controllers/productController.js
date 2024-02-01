@@ -1,24 +1,24 @@
-const db = require("../config/db");
-const {validation} = require("../helper/services");
+import database from '../config/db.js'
+import { validation } from '../helper/services';
 
-const getAllProduct = async (req, res) => {
+export const getAllProduct = async (req, res) => {
   const sql = "SELECT * FROM tbl_product";
 
   //join category panigation search
-  const data = await db.query(sql);
+  const data = await database.query(sql);
   res.json({
     list: data,
   });
 };
-const getSingleProduct = async (req, res) => {
+export const getSingleProduct = async (req, res) => {
   const id = id.params.id;
   const sql = "SELECT * FROM tbl_product";
-  const list = await db.query(sql, [id]);
+  const list = await database.query(sql, [id]);
   res.json({
     data: list,
   });
 };
-const createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   var { categoryId, barcode, productName, quantity, price, image, description } =
     req.body;
   var msg = {};
@@ -56,12 +56,12 @@ const createProduct = async (req, res) => {
     image,
     description,
   ];
-  const list = await db.query(sql, param);
+  const list = await database.query(sql, param);
   res.json({
     data: list,
   });
 };
-const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
   var { categoryId, barcode, name, quantity, price, image, description } =
     req.body;
   var msg = {};
@@ -100,36 +100,28 @@ const updateProduct = async (req, res) => {
     description,
     product_id,
   ];
-  const list = await db.query(sql, param);
+  const list = await database.query(sql, param);
   res.json({
     data: list,
     body: req.body,
     file: req.files 
   });
 };
-const removeProduct = async (req, res) => {
+export const removeProduct = async (req, res) => {
   const {id} = req.body
   var sql = "DELETE FROM tbl_product WHERE product_id = ?"
-  const data = await db.query(sql,[id])
+  const data = await database.query(sql,[id])
   res.json({
     msg: "Product is remove!",
     data: data
   });
 };
-const changeStatus = async (req, res) => {
+export const changeStatus = async (req, res) => {
   const {status} = req.body
   var sql = "UPDATE tbl_product SET status = ? WHERE product_id = ?"
-  const list = await db.query(sql,[status])
+  const list = await database.query(sql,[status])
   res.json({
     msg: "Status is "+ (status == 0 ? "inactive":"active"),
     list: list
   })
-};
-module.exports = {
-  getAllProduct,
-  getSingleProduct,
-  createProduct,
-  updateProduct,
-  removeProduct,
-  changeStatus,
 };

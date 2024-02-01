@@ -1,13 +1,13 @@
-const db = require("../config/db");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-const { validation } = require("../helper/services");
+import connect from "../config/db.js"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+import { validation } from "../helper/services"
 
 dotenv.config();
 
-const getCustomerList = async (req, res) => {
-  const data = await db.query(
+export const getCustomerList = async (req, res) => {
+  const data = await connect.query(
     "SELECT customer_id, first_name, last_name, email FROM tbl_customer"
   );
   res.json({
@@ -15,11 +15,11 @@ const getCustomerList = async (req, res) => {
   });
 };
 
-const getSingleCustomer = async (req, res) => {
+export const getSingleCustomer = async (req, res) => {
   let id = req.params.id;
   let sql =
     "SELECT customer_id, first_name, last_name, email FROM tbl_customer WHERE customer_id = ?";
-  await db.query(sql, [id], (error, row) => {
+  await connect.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({
         msg: "select one customer success!",
@@ -35,8 +35,8 @@ const getSingleCustomer = async (req, res) => {
 };
 
 //register
-const registerAndCreateAddress = async (req, res) => {
-  await db.beginTransaction();
+export const registerAndCreateAddress = async (req, res) => {
+  await connect.beginTransaction();
   var { email, password, firstName, lastName, provinceId, tel, addressDes } = req.body;
 
   //validation checking
@@ -69,7 +69,7 @@ const registerAndCreateAddress = async (req, res) => {
   try {
     //customer checking by email
     const existUserQuery = "SELECT customer_id FROM tbl_customer WHERE email = ?";
-    const existUser = await db.query(existUserQuery, [email]);
+    const existUser = await connect.query(existUserQuery, [email]);
     if (existUser.length > 0) {
       // User with the same email already exists
       res.json({
@@ -83,7 +83,7 @@ const registerAndCreateAddress = async (req, res) => {
       "INSERT INTO tbl_customer (role_id, first_name, last_name, email, password)" +
       " VALUES(5, ?, ?, ?, ?)";
     var customerParam = [firstName, lastName, email, password];
-    const insertCustomer = await db.query(sqlCustomer, customerParam);
+    const insertCustomer = await connect.query(sqlCustomer, customerParam);
     const customerId = insertCustomer.insertId;
     var sqlAddress =
       "INSERT INTO tbl_address" +
@@ -97,15 +97,15 @@ const registerAndCreateAddress = async (req, res) => {
       tel,
       addressDes,
     ];
-    await db.query(sqlAddress, paramAddress);
+    await connect.query(sqlAddress, paramAddress);
     res.json({
       msg: "Account Created",
       data: insertCustomer,
     });
-    await db.commit();
+    await connect.commit();
   }catch (error) {
 
-    await db.rollback();
+    await connect.rollback();
     console.error("Error during registration:", error);
 
     // Send an appropriate error response to the client
@@ -117,7 +117,7 @@ const registerAndCreateAddress = async (req, res) => {
 };
 
 //handle login
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   var msg = {};
   if (validation(email)) {
@@ -176,7 +176,7 @@ const login = async (req, res) => {
 };
 
 //handle update information of customer
-const updateCustomer = async (req, res) => {
+export const updateCustomer = async (req, res) => {
   var { customerId, firstName, lastName, email } = req.body;
 
   var msg = {};
@@ -202,7 +202,7 @@ const updateCustomer = async (req, res) => {
   let sql =
     "UPDATE tbl_customer SET first_name = ?, last_name = ? , email =? WHERE customer_id =?";
   let sql_param = [firstName, lastName, email, customerId];
-  await db.query(sql, sql_param, (error, row) => {
+  await connect.query(sql, sql_param, (error, row) => {
     if (!error) {
       res.json({
         msg:
@@ -221,11 +221,11 @@ const updateCustomer = async (req, res) => {
 };
 
 //handle delete customer record
-const removeCustomer = async (req, res) => {
+export const removeCustomer = async (req, res) => {
   let id = req.params.id;
   let sql = "UPDATE tbl_customer SET status = 0 WHERE customer_id = ?";
   let param_id = [id];
-  await db.query(sql, param_id, (error, row) => {
+  await connect.query(sql, param_id, (error, row) => {
     if (!error) {
       res.json({
         msg:
@@ -244,9 +244,9 @@ const removeCustomer = async (req, res) => {
 };
 
 //handle list of address
-const addressList = async (req, res) => {
+export const addressList = async (req, res) => {
   var { customerId } = req.body;
-  const list = await db.query(
+  const list = await connect.query(
     "SELECT * FROM tbl_address WHERE customer_id=?",
     [customerId]
   );
@@ -257,9 +257,9 @@ const addressList = async (req, res) => {
 };
 
 //catch one of customer address
-const getOneAddress = async (req, res) => {
+export const getOneAddress = async (req, res) => {
   let id = req.params.id;
-  const list = await db.query(
+  const list = await connect.query(
     "SELECT * FROM tbl_address WHERE address_id= ?",
     [id]
   );
@@ -270,7 +270,7 @@ const getOneAddress = async (req, res) => {
 };
 
 //handle add new address of customer
-const addNewAddress = async (req, res) => {
+export const addNewAddress = async (req, res) => {
   var { customerId, firstName, lastName, email, provinceId, addressDes } =
     req.body;
 
@@ -305,7 +305,7 @@ const addNewAddress = async (req, res) => {
   var sql =
     "INSERT INTO tbl_address (customer_id, province_id, first_name, last_name, email, address_des) VALUES(?,?,?,?,?,?)";
   var param = [customerId, provinceId, firstName, lastName, email, addressDes];
-  await db.query(sql, param, (error, row) => {
+  await connect.query(sql, param, (error, row) => {
     if (!error) {
       res.json({
         msg: row.affectedRows != 0 ? "create success!" : "create faild!",
@@ -321,7 +321,7 @@ const addNewAddress = async (req, res) => {
 };
 
 //handle update on address
-const updateAddress = async (req, res) => {
+export const updateAddress = async (req, res) => {
   var {
     addressId,
     customerId,
@@ -374,7 +374,7 @@ const updateAddress = async (req, res) => {
     addressDes,
     addressId,
   ];
-  await db.query(sql, param, (error, row) => {
+  await connect.query(sql, param, (error, row) => {
     if (!error) {
       res.json({
         msg: row.affectedRows != 0 ? "update success!" : "update faild!",
@@ -390,10 +390,10 @@ const updateAddress = async (req, res) => {
 };
 
 //hanle delete address record of customer
-const removeAddress = async (req, res) => {
+export const removeAddress = async (req, res) => {
   let id = req.params.id;
   const sql = "DELETE FROM tbl_address WHERE address_id =?";
-  await db.query(sql, [id], (error, row) => {
+  await connect.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({
         msg: row.affectedRows ? "Delete success" : "Delete failed",
@@ -406,18 +406,4 @@ const removeAddress = async (req, res) => {
       });
     }
   });
-};
-
-module.exports = {
-  getCustomerList,
-  getSingleCustomer,
-  registerAndCreateAddress,
-  updateCustomer,
-  removeCustomer,
-  addressList,
-  getOneAddress,
-  addNewAddress,
-  updateAddress,
-  removeAddress,
-  login,
 };

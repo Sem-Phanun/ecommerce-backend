@@ -1,16 +1,18 @@
-const mysql = require('mysql2')
-const util = require('util')
-const dotenv = require('dotenv')
+import mysql from 'mysql2'
+import util from 'util'
+import dotenv from 'dotenv'
+
 dotenv.config()
-const database = mysql.createConnection({
-  host: process.env.HOST,
+const connect = mysql.createConnection({
+  host: "127.0.0.1",
+  port: "3300",
   user: process.env.USER,
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
 });
 
 
-database.connect((err)=> {
+connect.connect((err)=> {
   if(err){
     console.log("Error connection ", err)
   }else{
@@ -19,5 +21,5 @@ database.connect((err)=> {
 })
 
 //promise wrapper to enable asynce await with mysql
-database.query = util.promisify(database.query).bind(database)
-module.exports = database;
+connect.query = util.promisify(connect.query).bind(connect)
+module.exports = connect
