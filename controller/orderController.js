@@ -1,5 +1,5 @@
-import connect from "../config/connect"
-import {validation, invoiceNumber} from "../helper/services"
+import connect from "../config/db.js"
+import {validation, invoiceNumber} from "../helper/services.js"
 
 export const generateInvoiceNo = async () => {
     const data = await connect.query("SELECT MAX( order_id ) as id FROM `tbl_order`")

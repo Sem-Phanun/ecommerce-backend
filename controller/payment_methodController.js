@@ -1,6 +1,6 @@
-const Stripe = require("stripe");
-const dotenv = require("dotenv");
-const db = require("../config/db");
+import Stripe from "stripe"
+import dotenv from "dotenv"
+import connect from "../config/db.js"
 dotenv.config();
 const stripe = Stripe(process.env.STRIPE_API);
 
@@ -31,35 +31,29 @@ const stripe = Stripe(process.env.STRIPE_API);
 //   res.send(`<html><body><h1>Thanks for your order, ${customer.name}!</h1></body></html>`);
 // };
 
-const getAllPaymentMethod = async (req, res) => {
-  const sql = "SELECT * FROM tbl_payment_method";
-  const payment = await db.query(sql);
+export const getAllPaymentMethod = async (req, res) => {
+  const sql = "SELECT * FROM payment_method";
+  const payment = await connect.query(sql);
   res.json({
     list: payment,
   });
 };
 
-const createPaymentMethod = async (req, res) => {
+export const createPaymentMethod = async (req, res) => {
   var { name, code } = req.body;
-  const sql = "INSERT INTO tbl_payment_method (name, code) VALUES(?,?)";
+  const sql = "INSERT INTO payment_method (name, code) VALUES(?,?)";
   const param = [name, code];
-  const payment = await db.query(sql, param);
+  const payment = await connect.query(sql, param);
   res.json({
     list: payment,
   });
 };
 
-const removePaymentMethod = async (req, res) => {
+export const removePaymentMethod = async (req, res) => {
   var { payment_id } = req.body;
-  const sql = "DELETE FROM tbl_payment_method WHERE payment_id = ?";
-  const payment = await db.query(sql, [payment_id]);
+  const sql = "DELETE FROM payment_method WHERE payment_id = ?";
+  const payment = await connect.query(sql, [payment_id]);
   res.json({
     list: payment,
   });
-};
-
-module.exports = {
-  getAllPaymentMethod,
-  createPaymentMethod,
-  removePaymentMethod,
 };

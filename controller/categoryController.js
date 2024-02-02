@@ -1,9 +1,9 @@
-const db = require("../config/db");
-const {validation} = require("../helper/services")
+import connect from "../config/db.js"
+import {validation} from "../helper/services.js"
 
-const getAllCategory = async(req, res) => {
-  sql = 'SELECT * FROM tbl_category'
-  await db.query(sql,(error,row) => {
+export const getAllCategory = async(req, res) => {
+  sql = 'SELECT * FROM category'
+  await connect.query(sql,(error,row) => {
     if(error){
       res.json({
         msg: error,
@@ -18,7 +18,7 @@ const getAllCategory = async(req, res) => {
   })
 };
 
-const getOne = async (req, res) => {
+export const getOne = async (req, res) => {
   let id = req.params.id
   let sql = 'SELECT * FROM category WHERE category_id = ?'
   await bd.query(sql,[id],(error,row)=> {
@@ -36,11 +36,10 @@ const getOne = async (req, res) => {
   })
 };
 
-const createCategory = async (req, res) => {
+export const createCategory = async (req, res) => {
   const {
     categoryName,
     description,
-    parentId,
     status,
   } = req.body;
   var msg = {}
@@ -54,13 +53,13 @@ const createCategory = async (req, res) => {
     })
     return false;
   }
-  let sql = 'INSERT INTO tbl_category (`category_name` , `description`, `parent_id`, `status`) VALUES(?,?,?,?)'
-  let data = [categoryName,description,parentId,status]
-  await db.query(sql,data,(error,row)=> {
+  let sql = 'INSERT INTO category (`category_name` , `description`, `status`) VALUES(?,?,?)'
+  let data = [categoryName,description,status]
+  await connect.query(sql,data,(error,row)=> {
     if(!error){
       res.json({
         msg: 'category insert successful',
-        list: row
+        cateogry: row
       })
     }else{
       res.json({
@@ -71,12 +70,11 @@ const createCategory = async (req, res) => {
   })
 };
 
-const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res) => {
   const {
     categoryId,
     categoryName,
     description,
-    parentId,
     status
   } = req.body
   var msg = {}
@@ -90,9 +88,9 @@ const updateCategory = async (req, res) => {
     })
     return false
   }
-  let sql = 'UPDATE tbl_category SET category_name = ?, description = ?, parent_id =?, status =? WHERE category_id =?'
+  let sql = 'UPDATE category SET category_name = ?, description = ?, status =? WHERE category_id =?'
   let param_sql = [categoryName, description, parentId, status, categoryId]
-  await db.query(sql,param_sql,(error,row)=>{
+  await connect.query(sql,param_sql,(error,row)=>{
     if(!error){
       res.json({
         msg: row.affectedRows != 0 ? 'Category update success!' : 'category update faild!',
@@ -107,11 +105,11 @@ const updateCategory = async (req, res) => {
   })
 };
 
-const removeCategory = async (req, res) => {
+export const removeCategory = async (req, res) => {
   let id = req.params.id
-  let sql = 'DELETE FROM tbl_category WHERE cateogry_id =?'
+  let sql = 'DELETE FROM category WHERE cateogry_id =?'
   let param_id = [id]
-  await db.query(sql,param_id,(error,row)=> {
+  await connect.query(sql,param_id,(error,row)=> {
     if(!error){
       res.json({
         msg: (row.affectedRows != 0) ? 'category remove success' : 'category remove faild',
@@ -124,12 +122,4 @@ const removeCategory = async (req, res) => {
       })
     }
   })
-};
-
-module.exports = {
-  getAllCategory,
-  getOne,
-  createCategory,
-  updateCategory,
-  removeCategory,
 };

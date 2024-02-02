@@ -2,13 +2,13 @@ import connect from "../config/db.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
-import { validation } from "../helper/services"
+import { validation } from "../helper/services.js"
 
 dotenv.config();
 
 export const getCustomerList = async (req, res) => {
   const data = await connect.query(
-    "SELECT customer_id, first_name, last_name, email FROM tbl_customer"
+    "SELECT customer_id, first_name, last_name, email FROM customer"
   );
   res.json({
     data: data,
@@ -18,7 +18,7 @@ export const getCustomerList = async (req, res) => {
 export const getSingleCustomer = async (req, res) => {
   let id = req.params.id;
   let sql =
-    "SELECT customer_id, first_name, last_name, email FROM tbl_customer WHERE customer_id = ?";
+    "SELECT customer_id, first_name, last_name, email FROM customer WHERE customer_id = ?";
   await connect.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({
@@ -68,7 +68,7 @@ export const registerAndCreateAddress = async (req, res) => {
   }
   try {
     //customer checking by email
-    const existUserQuery = "SELECT customer_id FROM tbl_customer WHERE email = ?";
+    const existUserQuery = "SELECT customer_id FROM customer WHERE email = ?";
     const existUser = await connect.query(existUserQuery, [email]);
     if (existUser.length > 0) {
       // User with the same email already exists
@@ -80,13 +80,13 @@ export const registerAndCreateAddress = async (req, res) => {
     }
     var password = await bcrypt.hashSync(password, 10);
     var sqlCustomer =
-      "INSERT INTO tbl_customer (role_id, first_name, last_name, email, password)" +
+      "INSERT INTO customer (role_id, first_name, last_name, email, password)" +
       " VALUES(5, ?, ?, ?, ?)";
     var customerParam = [firstName, lastName, email, password];
     const insertCustomer = await connect.query(sqlCustomer, customerParam);
     const customerId = insertCustomer.insertId;
     var sqlAddress =
-      "INSERT INTO tbl_address" +
+      "INSERT INTO address" +
       " (customer_id, province_id, first_name, last_name, tel, address_des)" +
       " VALUES(?, ?, ?, ?, ?, ?)";
     var paramAddress = [
@@ -134,7 +134,7 @@ export const login = async (req, res) => {
     return false;
   }
 
-  var user = await db.query("SELECT * FROM tbl_customer WHERE email =? ", [
+  var user = await db.query("SELECT * FROM customer WHERE email =? ", [
     email,
   ]);
   if (user.length > 0) {
@@ -200,7 +200,7 @@ export const updateCustomer = async (req, res) => {
     return false;
   }
   let sql =
-    "UPDATE tbl_customer SET first_name = ?, last_name = ? , email =? WHERE customer_id =?";
+    "UPDATE customer SET first_name = ?, last_name = ? , email =? WHERE customer_id =?";
   let sql_param = [firstName, lastName, email, customerId];
   await connect.query(sql, sql_param, (error, row) => {
     if (!error) {
@@ -223,7 +223,7 @@ export const updateCustomer = async (req, res) => {
 //handle delete customer record
 export const removeCustomer = async (req, res) => {
   let id = req.params.id;
-  let sql = "UPDATE tbl_customer SET status = 0 WHERE customer_id = ?";
+  let sql = "UPDATE customer SET status = 0 WHERE customer_id = ?";
   let param_id = [id];
   await connect.query(sql, param_id, (error, row) => {
     if (!error) {
@@ -247,7 +247,7 @@ export const removeCustomer = async (req, res) => {
 export const addressList = async (req, res) => {
   var { customerId } = req.body;
   const list = await connect.query(
-    "SELECT * FROM tbl_address WHERE customer_id=?",
+    "SELECT * FROM address WHERE customer_id=?",
     [customerId]
   );
   res.json({
@@ -260,7 +260,7 @@ export const addressList = async (req, res) => {
 export const getOneAddress = async (req, res) => {
   let id = req.params.id;
   const list = await connect.query(
-    "SELECT * FROM tbl_address WHERE address_id= ?",
+    "SELECT * FROM address WHERE address_id= ?",
     [id]
   );
   res.json({
@@ -303,7 +303,7 @@ export const addNewAddress = async (req, res) => {
   }
 
   var sql =
-    "INSERT INTO tbl_address (customer_id, province_id, first_name, last_name, email, address_des) VALUES(?,?,?,?,?,?)";
+    "INSERT INTO address (customer_id, province_id, first_name, last_name, email, address_des) VALUES(?,?,?,?,?,?)";
   var param = [customerId, provinceId, firstName, lastName, email, addressDes];
   await connect.query(sql, param, (error, row) => {
     if (!error) {
@@ -364,7 +364,7 @@ export const updateAddress = async (req, res) => {
   }
 
   var sql =
-    "UPDATE tbl_address SET customer_id = ?, province_id = ?, first_name = ?, last_name = ?, email = ? , address_des =?";
+    "UPDATE address SET customer_id = ?, province_id = ?, first_name = ?, last_name = ?, email = ? , address_des =?";
   var param = [
     customerId,
     provinceId,
@@ -392,7 +392,7 @@ export const updateAddress = async (req, res) => {
 //hanle delete address record of customer
 export const removeAddress = async (req, res) => {
   let id = req.params.id;
-  const sql = "DELETE FROM tbl_address WHERE address_id =?";
+  const sql = "DELETE FROM address WHERE address_id =?";
   await connect.query(sql, [id], (error, row) => {
     if (!error) {
       res.json({

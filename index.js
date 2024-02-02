@@ -15,15 +15,15 @@ app.use(cors());
 
 
 
-import categoryRoute from "./routes/categoryRoute";
-import customerRoute from "./routes/customerRoute";
-import productRoute from './routes/productRoute'
-import wishlist from './routes/wishlistRoute'
-import paymentMethod from './routes/payment_methodRoute'
-import orderStatus from './routes/order_statusRoute'
-import cartRoute from './routes/cartRoute'
-import orderRoute from './routes/orderRoute'
-import employeeRoute from './routes/employeeRoute'
+import categoryRoute from "./routes/cartRoute.js";
+import customerRoute from "./routes/customerRoute.js";
+import productRoute from './routes/productRoute.js'
+import wishlist from './routes/wishlistRoute.js'
+import paymentMethod from './routes/payment_methodRoute.js'
+import orderStatus from './routes/order_statusRoute.js'
+import cartRoute from './routes/cartRoute.js'
+import orderRoute from './routes/orderRoute.js'
+import employeeRoute from './routes/employeeRoute.js'
 
 
 

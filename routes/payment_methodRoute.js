@@ -1,13 +1,12 @@
-const express = require("express")
-const router = express.Router()
-const paymentController = require('../controllers/payment_methodController')
+import express from "express"
+import { getAllPaymentMethod, createPaymentMethod, removePaymentMethod } from '../controller/payment_methodController.js'
 
-const baseUrl = "/api/payment_method"
+const router = express.Router()
 
     // app.post('/create-checkout-session', paymentController.create)
     // app.get('/order/success', paymentController.paymentSuccess)
-router.get(`${baseUrl}`,paymentController.getAllPaymentMethod)
-router.post(`${baseUrl}`,paymentController.createPaymentMethod)
-router.delete(`${baseUrl}/:id`, paymentController.removePaymentMethod)
+router.get("/test",getAllPaymentMethod)
+router.post("/test",createPaymentMethod)
+router.delete("/test/:id", removePaymentMethod)
 
-module.exports = router
+export default router

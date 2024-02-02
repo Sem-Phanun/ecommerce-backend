@@ -6,23 +6,23 @@ import { getPermission } from "../helper/permission.js"
 import { validation } from "../helper/services.js"
 dotenv.config();
 
-export const getAllStaffList = async (req, res) => {
+export const getAllEmployeeList = async (req, res) => {
   const sql =
-    "SELECT first_name AS FirstName, last_name AS LastName FROM tbl_staff";
+    "SELECT first_name AS FirstName, last_name AS LastName FROM employee";
   const list = await connect.query(sql);
   res.json({
     list: list,
   });
 };
-export const getSingleStaff = async (req, res) => {
+export const getSingleEmployee = async (req, res) => {
   const id = req.params.id;
-  const sql = "SELECT * FROM tbl_staff WHERE staff_id = ? ";
+  const sql = "SELECT * FROM employee WHERE employee_id = ? ";
   const list = await connect.query(sql, [id]);
   res.json({
     list: list,
   });
 };
-export const staffRegisterInfo = async (req, res) => {
+export const employeeRegisterInfo = async (req, res) => {
   const { roleId, firstName, lastName, email, password, tel, address } =
     req.body;
   var msg = {};
@@ -42,7 +42,7 @@ export const staffRegisterInfo = async (req, res) => {
     });
     return false;
   }
-  const existAdminQuery = "SELECT staff_id FROM tbl_staff WHERE email = ? ";
+  const existAdminQuery = "SELECT employee_id FROM employee WHERE email = ? ";
   const existAdmin = await connect.query(existAdminQuery,[email]);
   if(existAdmin.length > 0){
     res.json({
@@ -52,7 +52,7 @@ export const staffRegisterInfo = async (req, res) => {
     return false;
   }
   const sql =
-    "INSERT INTO tbl_staff (role_id, first_name, last_name, email, tel, password, address)" +
+    "INSERT INTO employee (role_id, first_name, last_name, email, tel, password, address)" +
     "VALUES(?, ?, ?, ?, ?, ?, ?)";
   const paramSql = [roleId, firstName, lastName, email, tel, password, address];
   const list = await connect.query(sql, paramSql);
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     });
     return false;
   }
-  const sql = "SELECT * FROM tbl_staff WHERE email = ?";
+  const sql = "SELECT * FROM employee WHERE email = ?";
   var user = await connect.query(sql, [email]);
   if (user.length > 0) {
     var passwordCompare = user[0].password; // get password from DB
@@ -138,12 +138,12 @@ export const refreshToken = async (req, res) => {
           });
         } else {
           var email = result.data.user.email;
-          var user = await connect.query("SELECT * FROM tbl_staff WHERE email = ?", [
+          var user = await connect.query("SELECT * FROM employee WHERE email = ?", [
             email,
           ]);
           user = user[0];
           delete user.password;
-          var permission = await getPermission(user.staff_id);
+          var permission = await getPermission(user.employee_id);
           var obj = {
             user: user,
             permission: permission,
@@ -187,8 +187,8 @@ export const setPassword = async (req, res) => {
     });
     return;
   }
-  const staff = "SELECT * FROM tbl_staff WHERE email = ?";
-  const list = await connect.query(staff, [email]);
+  const emp = "SELECT * FROM employee WHERE email = ?";
+  const list = await connect.query(emp, [email]);
   if (list.length > 0) {
     var passwordGenerate = bcrypt.hashSync(password, 10);
     var update = await connect.query(
@@ -206,11 +206,11 @@ export const setPassword = async (req, res) => {
     });
   }
 };
-export const updateStaffInfo = async (req, res) => {
-  const { staffId, firstName, lastName, email, tel, password, address } =
+export const updateEmployeeInfo = async (req, res) => {
+  const { empId, firstName, lastName, email, tel, password, address } =
     req.body;
   var msg = {};
-  if (validation(staffId)) {
+  if (validation(empId)) {
     msg.staffId = "Staff id is required!";
   }
   if (validation(firstName)) {
@@ -230,9 +230,9 @@ export const updateStaffInfo = async (req, res) => {
     return false;
   }
   var sql =
-    "UPDATE tbl_staff " +
+    "UPDATE employee " +
     " SET first_name =? , last_name = ?, email =?, tel = ?, password = ?, address = ? WHERE staff_id =?";
-  const staffParam = [
+  const employeeParam = [
     firstName,
     lastName,
     email,
@@ -241,14 +241,14 @@ export const updateStaffInfo = async (req, res) => {
     address,
     staffId,
   ];
-  const data = await connect.query(sql, staffParam);
+  const data = await connect.query(sql, employeeParam);
   res.json({
     data: data,
   });
 };
-export const deleteStaffInfo = async (req, res) => {
+export const deleteEmployeeInfo = async (req, res) => {
   var { id } = req.params;
-  var sql = "DELETE FROM tbl_staff WHERE staff_id =? ";
+  var sql = "DELETE FROM employee WHERE employee_id =? ";
   const data = await connect.query(sql, [id]);
   res.json({
     data: data,

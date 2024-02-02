@@ -6,7 +6,7 @@ dotenv.config()
 const connect = mysql.createConnection({
   host: "127.0.0.1",
   port: "3300",
-  user: process.env.USER,
+  user: "root",
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
 });
@@ -22,4 +22,4 @@ connect.connect((err)=> {
 
 //promise wrapper to enable asynce await with mysql
 connect.query = util.promisify(connect.query).bind(connect)
-module.exports = connect
+export default connect

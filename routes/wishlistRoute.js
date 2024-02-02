@@ -1,11 +1,11 @@
 import express from "express"
-import wishlistController from '../controllers/wishlistController'
-import { requestAuth } from "../helper/auth"
+import { getAllwishlist, createWishlist, removeWishlist } from '../controller/wishlistController.js'
+import { requestAuth } from "../middleware/auth.js"
 
 const router = express.Router()
 
-router.get("/wishlist" , requestAuth,wishlistController.getAllwishlist)
-router.post("/create/wishlist", requestAuth ,wishlistController.createWishlist)
-router.delete("/remove-wishlist/:id" , requestAuth,wishlistController.removeWishlist)
+router.get("/wishlist" , requestAuth, getAllwishlist)
+router.post("/create/wishlist", requestAuth , createWishlist)
+router.delete("/remove-wishlist/:id" , requestAuth, removeWishlist)
 
-module.exports = router
+export default router

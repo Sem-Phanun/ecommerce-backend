@@ -1,21 +1,40 @@
-const express = require("express")
-const router = express.Router()
-const customer = require("../controllers/customerController");
-const { requestAuth } = require("../helper/auth")
-const baseUrl = "/api/customer";
+import express from "express";
+import {
+  getCustomerList,
+  getSingleCustomer,
+  getOneAddress,
+  registerAndCreateAddress,
+  login,
+  updateAddress,
+  removeAddress,
+  addNewAddress,
+  addressList,
+  updateCustomer,
+  removeCustomer
+} from "../controller/customerController.js";
+import { requestAuth } from "../middleware/auth.js";
 
-router.get(`${baseUrl}`,requestAuth("customer.Read"), customer.getCustomerList);
-router.get(`${baseUrl}/:id`,requestAuth("customer.Read"), customer.getSingleCustomer);
-router.post(`${baseUrl}` , requestAuth("customer.Create"),customer.registerAndCreateAddress);
-router.post(`${baseUrl}/auth/login`,requestAuth, customer.login)
-router.put(`${baseUrl}`, requestAuth, customer.updateCustomer);
-router.delete(`${baseUrl}/:id`, requestAuth ,customer.removeCustomer);
+const router = express.Router();
 
-router.get(`${baseUrl}_address`, requestAuth ,customer.addressList);
-router.get(`${baseUrl}_address/:id`, requestAuth, customer.getOneAddress);
-router.post(`${baseUrl}_address`, requestAuth, customer.addNewAddress);
-router.put(`${baseUrl}_address`,requestAuth, customer.updateAddress);
-router.delete(`${baseUrl}_address/:id`, requestAuth, customer.removeAddress);
+router.get("/customer-list", requestAuth("customer.Read"), getCustomerList);
+router.get(
+  "/customer-list/:id",
+  requestAuth("customer.Read"),
+  getSingleCustomer
+);
+router.post(
+  "/create/customer",
+  requestAuth("customer.Create"),
+  registerAndCreateAddress
+);
+router.post("/auth/login", requestAuth, login);
+router.put("/update/customer", requestAuth, updateCustomer);
+router.delete("/delete-customer/:id", requestAuth, removeCustomer);
 
+router.get("/get_address", requestAuth, addressList);
+router.get("/get_address/:id", requestAuth, getOneAddress);
+router.post("/create_address", requestAuth, addNewAddress);
+router.put("/update_address", requestAuth, updateAddress);
+router.delete("/delete_address/:id", requestAuth, removeAddress);
 
-module.exports = router;
+export default router;

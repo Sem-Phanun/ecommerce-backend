@@ -1,11 +1,11 @@
-const express = require("express")
+import express from "express"
+import { getAll, create, remove} from '../controller/order_statusController.js'
+import { requestAuth } from "../middleware/auth.js"
+
 const router = express.Router()
-const orderStatus = require('../controllers/order_statusController')
-const { requestAuth } = require("../helper/auth")
-const baseUrl = "/api/order_status"
 
-router.get(`${baseUrl}`, requestAuth ,orderStatus.getAll)
-router.post(`${baseUrl}`, requestAuth ,orderStatus.create)
-router.delete(`${baseUrl}/:id`, requestAuth,orderStatus.remove)
+router.get("/order-status", requestAuth ,getAll)
+router.post("/order-status", requestAuth ,create)
+router.delete("/order-status/:id", requestAuth,remove)
 
-module.exports = router
+export default router

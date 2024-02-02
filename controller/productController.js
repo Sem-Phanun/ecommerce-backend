@@ -1,21 +1,21 @@
-import database from '../config/db.js'
-import { validation } from '../helper/services';
+import connect from '../config/db.js'
+import { validation } from '../helper/services.js';
 
 export const getAllProduct = async (req, res) => {
-  const sql = "SELECT * FROM tbl_product";
+  const sql = "SELECT * FROM product";
 
   //join category panigation search
-  const data = await database.query(sql);
+  const data = await connect.query(sql);
   res.json({
-    list: data,
+    product: data,
   });
 };
 export const getSingleProduct = async (req, res) => {
   const id = id.params.id;
-  const sql = "SELECT * FROM tbl_product";
-  const list = await database.query(sql, [id]);
+  const sql = "SELECT * FROM product";
+  const list = await connect.query(sql, [id]);
   res.json({
-    data: list,
+    product: list,
   });
 };
 export const createProduct = async (req, res) => {
@@ -46,7 +46,7 @@ export const createProduct = async (req, res) => {
   }
 
   const sql =
-    "INSERT INTO tbl_product (category_id, barcode, product_name, quantity, price, image, description) VALUES(?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO product (category_id, barcode, product_name, quantity, price, image, description) VALUES(?, ?, ?, ?, ?, ?, ?)";
   const param = [
     categoryId,
     barcode,
@@ -56,7 +56,7 @@ export const createProduct = async (req, res) => {
     image,
     description,
   ];
-  const list = await database.query(sql, param);
+  const list = await connect.query(sql, param);
   res.json({
     data: list,
   });
@@ -89,7 +89,7 @@ export const updateProduct = async (req, res) => {
   }
 
   const sql =
-    "UPDATE tbl_product SET category_id =? , barcode =?, name =?, quantity =?, price =?, image =?, description =? WHERE product_id =?";
+    "UPDATE product SET category_id =? , barcode =?, name =?, quantity =?, price =?, image =?, description =? WHERE product_id =?";
   const param = [
     category_id,
     barcode,
@@ -100,7 +100,7 @@ export const updateProduct = async (req, res) => {
     description,
     product_id,
   ];
-  const list = await database.query(sql, param);
+  const list = await connect.query(sql, param);
   res.json({
     data: list,
     body: req.body,
@@ -109,8 +109,8 @@ export const updateProduct = async (req, res) => {
 };
 export const removeProduct = async (req, res) => {
   const {id} = req.body
-  var sql = "DELETE FROM tbl_product WHERE product_id = ?"
-  const data = await database.query(sql,[id])
+  var sql = "DELETE FROM product WHERE product_id = ?"
+  const data = await connect.query(sql,[id])
   res.json({
     msg: "Product is remove!",
     data: data
@@ -118,8 +118,8 @@ export const removeProduct = async (req, res) => {
 };
 export const changeStatus = async (req, res) => {
   const {status} = req.body
-  var sql = "UPDATE tbl_product SET status = ? WHERE product_id = ?"
-  const list = await database.query(sql,[status])
+  var sql = "UPDATE product SET status = ? WHERE product_id = ?"
+  const list = await connect.query(sql,[status])
   res.json({
     msg: "Status is "+ (status == 0 ? "inactive":"active"),
     list: list
