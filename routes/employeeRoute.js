@@ -13,7 +13,7 @@ import { requestAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/get-employee", requestAuth, getAllEmployeeList);
+router.get("/get-employee", getAllEmployeeList);
 router.get("/get-employee-by-id/:id", requestAuth, getSingleEmployee);
 router.post("/register", employeeRegisterInfo);
 router.post("/auth/login", login);

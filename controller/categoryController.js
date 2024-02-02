@@ -38,13 +38,13 @@ export const getOne = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   const {
-    categoryName,
+    category_name,
     description,
     status,
   } = req.body;
   var msg = {}
-  if(validation(categoryName)){
-    msg.categoryName = "Category Name is required!"
+  if(validation(category_name)){
+    msg.category_name = "Category Name is required!"
   }
   if(Object.keys(msg).length > 0){
     res.json({
@@ -53,8 +53,8 @@ export const createCategory = async (req, res) => {
     })
     return false;
   }
-  let sql = 'INSERT INTO category (`category_name` , `description`, `status`) VALUES(?,?,?)'
-  let data = [categoryName,description,status]
+  let sql = 'INSERT INTO category (category_name , description, status) VALUES(?,?,?)'
+  let data = [category_name,description,status]
   await connect.query(sql,data,(error,row)=> {
     if(!error){
       res.json({

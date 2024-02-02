@@ -19,17 +19,21 @@ export const getSingleProduct = async (req, res) => {
   });
 };
 export const createProduct = async (req, res) => {
-  var { categoryId, barcode, productName, quantity, price, image, description } =
+  var { category_id, barcode, product_name, quantity, price, image, description } =
     req.body;
+  var filename = null
+  if(req.file){
+    filename = req.file.filename;
+  }
   var msg = {};
-  if (validation(categoryId)) {
-    msg.categoryId = "category ID is required!";
+  if (validation(category_id)) {
+    msg.category_id = "category ID is required!";
   }
   if (validation(barcode)) {
     msg.barcode = "Barcode is required!";
   }
-  if (validation(productName)) {
-    msg.productName = "Product name is required!";
+  if (validation(product_name)) {
+    msg.product_name = "Product name is required!";
   }
   if (validation(quantity)) {
     msg.quantity = "Quantity is required!";
@@ -48,17 +52,17 @@ export const createProduct = async (req, res) => {
   const sql =
     "INSERT INTO product (category_id, barcode, product_name, quantity, price, image, description) VALUES(?, ?, ?, ?, ?, ?, ?)";
   const param = [
-    categoryId,
+    category_id,
     barcode,
-    productName,
+    product_name,
     quantity,
     price,
-    image,
+    filename,
     description,
   ];
   const list = await connect.query(sql, param);
   res.json({
-    data: list,
+    product: list,
   });
 };
 export const updateProduct = async (req, res) => {
